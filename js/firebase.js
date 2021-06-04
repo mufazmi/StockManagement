@@ -1,13 +1,15 @@
-    const vapidKey =  'BHpLLjz0VSROmW953akT28aLgZd9lBHQH9pRqYhoHfhH6UPAyC22T19sLw3veLneQv62hS6694PpX6vVi17y_D8';
+    const vapidKey =  'BHmBfCjBEUhSHrd8iEqjsPEsxkPAv7yNO6N7MS9W0TpA76U_0ADYinFLndCdfzWRBdHLdgHlyyHlh07k0OOLASo';
+
     var firebaseConfig = {
-      apiKey: "AIzaSyCIE272STpMIefynAFZpIVo74Wn5Ig7U-8",
-      authDomain: "azmi-unani-store.firebaseapp.com",
-      projectId: "azmi-unani-store",
-      storageBucket: "azmi-unani-store.appspot.com",
-      messagingSenderId: "498531760192",
-      appId: "1:498531760192:web:f302cad7fba6ac35e947a5",
-      measurementId: "G-8JJS3FBQ78"
+      apiKey: "AIzaSyAvveJ1pJu1ZiIi_tMZz8ZpwvZh5wkdWZU",
+      authDomain: "stockmanagement-socialcodia.firebaseapp.com",
+      projectId: "stockmanagement-socialcodia",
+      storageBucket: "stockmanagement-socialcodia.appspot.com",
+      messagingSenderId: "1002537035270",
+      appId: "1:1002537035270:web:4877baaa1799950a6c4587",
+      measurementId: "G-E6TCK79MMF"
     };
+    
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     firebase.analytics();

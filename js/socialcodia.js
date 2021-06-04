@@ -79,18 +79,31 @@
     } 
   });
 
-  function previewSellerImage(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
+  function previewSellerImage(input) 
+  {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
 
-                reader.onload = function (e) {
-                    $('#sellerImage')
-                        .attr('src', e.target.result);
-                };
+        reader.onload = function (e) {
+            $('#sellerImage')
+                .attr('src', e.target.result);
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+  }
 
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+  function previewAdminImage(input) 
+  {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            $('#adminImagePreview')
+                .attr('src', e.target.result);
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+  }
   
 function setSelectedValue(name)
 {

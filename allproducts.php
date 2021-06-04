@@ -10,7 +10,7 @@
   {
     $products = $response->products;
   ?>
-    <div class="socialcodia" style="margin-top: -30px">
+    <div class="socialcodia" style="margin-top: -30px;">
         <div class="row">
             <div class="col l12 s12 m12" style="padding: 30px 0px 30px 10px;">
                 <div class="card z-depth-0">
@@ -39,7 +39,7 @@
                               <th>Action</th>
                           </tr>
                         </thead>
-                        <tbody style="font-family: holo">
+                        <tbody style="font-family: Rajdhani,sans-serif;">
                           <tr>
                             <?php
                             $count = 1;

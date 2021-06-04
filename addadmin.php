@@ -33,8 +33,8 @@
                         <div class="row">
                               <form id="formAddAdmin" method="post" enctype="multipart/form-data">
                                 <div class="col s12 center">
-                                    <input id="adminImage" type="file" onchange="previewSellerImage(this);" name="adminImage" class="hide">
-                                    <label for="adminImage"><img src="src/img/user.png" style="height: 160px; width: 160px; object-fit: cover; border: 2px solid blue; cursor: pointer;" id="adminImage" class="responsive-img circle" width="110" alt=""></label>
+                                    <input id="adminImage" type="file" onchange="previewAdminImage(this);" name="adminImage" class="hide">
+                                    <label for="adminImage"><img src="src/img/user.png" style="height: 160px; width: 160px; object-fit: cover; border: 2px solid blue; cursor: pointer;" id="adminImagePreview" class="responsive-img circle" width="110" alt=""></label>
                                 </div>
                                 <div class="input-field col s12 l12 m12">
                                     <i class="material-icons prefix">person</i>

@@ -34,7 +34,7 @@
                             <form method="post" enctype="multipart/form-data">
                                 <div class="col s12 center">
                                     <input id="image" type="file" onchange="previewSellerImage(this);" name="image" class="hide">
-                                    <label for="image"><img src="src/img/user.png" style="height: 160px; width: 160px; object-fit: cover; border: 2px solid blue;" id="sellerImage" class="responsive-img circle" width="110" alt=""></label>
+                                    <label for="image"><img src="src/img/user.png" style="height: 160px; width: 160px; object-fit: cover; border: 2px solid blue; cursor: pointer;" id="sellerImage" class="responsive-img circle" width="110" alt=""></label>
                                 </div>
                                 <div class="input-field col s12 l12 m12">
                                     <i class="material-icons prefix">person</i>
