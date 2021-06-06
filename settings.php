@@ -11,10 +11,12 @@
                 <div class="row">
                     <div class="col s12 l3 m4">
                          <div class="collection">
-                            <a href="settings.php" class="collection-item active blue">Home</a>
-                            <a href="changepassword.php" class="collection-item ">Change Password</a>
-                            <a href="#!" class="collection-item">Change Information</a>
-                            <a href="#!" class="collection-item">Chnage Anything</a>
+                            <a href="settings" class="collection-item active blue">Home</a>
+                            <a href="changepassword" class="collection-item ">Change Password</a>
+                             <a href="#!" class="collection-item">Comming Soon</a>
+                            <a href="#!" class="collection-item">Comming Soon</a>
+                            <a href="#!" class="collection-item">Comming Soon</a>
+                            <a href="#!" class="collection-item">Comming Soon</a>
                           </div>
                     </div>
                     <div class="col s12 l9 m8" >

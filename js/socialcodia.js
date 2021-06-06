@@ -436,8 +436,23 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       case 'sellers':
           setPageName('All Sellers');
         break;
+      case 'credits':
+          setPageName('Credits');
+        break;
+      case 'creditors':
+          setPageName('Creditors');
+        break;
+      case 'admins':
+          setPageName('Admins');
+        break;
+      case 'addadmin':
+          setPageName('Add Admin');
+        break;
+      case 'settings':
+          setPageName('Settings');
+        break;
       default:
-          setPageName('Azmi Unani Store');
+          setPageName('Social Codia');
         break;
       
     }

@@ -28,7 +28,7 @@ tr.highlighted td {
         	<div class="card z-depth-0" style="margin: 10px">
 		        <div class="card-content">
 		            <div class="input-field">
-		                <input type="text" onblur="this.focus()" autofocus id="inputOpenModal" onkeyup="openModalTextController()" placeholder="">
+		                <input type="text" autofocus id="inputOpenModal" onkeyup="openModalTextController()" placeholder="">
 		                <label for="productName">Enter Product Name</label>
 		            </div>
 		        </div>

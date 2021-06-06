@@ -24,8 +24,8 @@
         <li><a href="invoices"><i class="material-icons"><img src="src/icons/invoices.png" width="25" alt=""></i>Invoices</a></li>
         <li><a href="sellers"><i class="material-icons"><img src="src/icons/sellers.png" width="25" alt=""></i> All Sellers</a></li>
         <li><a href="addseller"><i class="material-icons"><img src="src/icons/addseller.png" width="25" alt=""></i> Add Seller</a></li>
-        <li><a href="admins.php"><i class="material-icons"><img src="src/icons/admin.png" width="25" alt=""></i> All Admin</a></li>
-        <li><a href="addadmin.php"><i class="material-icons"><img src="src/icons/add_admin.png" width="25" alt=""></i> Add Admin</a></li>
+        <li><a href="admins"><i class="material-icons"><img src="src/icons/admin.png" width="25" alt=""></i> All Admin</a></li>
+        <li><a href="addadmin"><i class="material-icons"><img src="src/icons/add_admin.png" width="25" alt=""></i> Add Admin</a></li>
         <li><a href="addproduct"><i class="material-icons"><img src="src/icons/add_product.png" width="25" alt=""></i> Add Product</a></li>
         <li><a href="addproductsinfo"><i class="material-icons"><img src="src/icons/info.png" width="25" alt=""></i> Add Products Info</a></li>
         <div class="divider"></div>

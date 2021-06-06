@@ -35,10 +35,12 @@
                 <div class="row">
                     <div class="col s12 l3 m4">
                          <div class="collection">
-                            <a href="settings.php" class="collection-item ">Home</a>
-                            <a href="changepassword.php" class="collection-item active blue">Change Password</a>
-                            <a href="addadmin.php" class="collection-item">Add Admin</a>
-                            <a href="#!" class="collection-item">Chnage Anything</a>
+                            <a href="settings" class="collection-item ">Home</a>
+                            <a href="changepassword" class="collection-item active blue">Change Password</a>
+                            <a href="#!" class="collection-item">Comming Soon</a>
+                            <a href="#!" class="collection-item">Comming Soon</a>
+                            <a href="#!" class="collection-item">Comming Soon</a>
+                            <a href="#!" class="collection-item">Comming Soon</a>
                           </div>
                     </div>
                     <div class="col s12 l9 m8">

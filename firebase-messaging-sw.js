@@ -11,7 +11,7 @@ var firebaseConfig = {
     measurementId: "G-E6TCK79MMF"
   };
 
-const icon = 'http://store.unanipharma.com/src/icons/home.png';
+const icon = 'http://store.socialnewsia.com/src/icons/home.png';
 
   firebase.initializeApp(config);
 
