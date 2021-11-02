@@ -69,7 +69,7 @@
                                       <th>Action</th>
                                   </tr>
                                 </thead>
-                                <tbody style="font-family: holo">
+                                <tbody id="tableBody">
                                   <tr>
                                     <?php
                                     if (!$invoiceResponse->error)

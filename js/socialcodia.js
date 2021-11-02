@@ -1,42 +1,79 @@
     
-    function dd(value)
-    {
-      console.log(value);
-    }
+function dd(value)
+{
+  console.log(value);
+}
+
+let mName,mBrand,mCategory,mSize,mLocation = '';
+
+const monthNames = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+
+function showLoadingAnimation()
+{
+  let divProcess = document.getElementById('divProcess');
+  let loadingAnimationDiv = `<div class="center"><img src="src/gif/11.gif" class="responsive-img center" width="500"></div>`;
+  divProcess.innerHTML = loadingAnimationDiv;
+}
+
+function getError(errorMessage)
+{
+  let html = `<div class="center"><h4>${errorMessage}</h4><img class="verticalCenter socialcodia" src="src/img/empty_cart.svg"</div>`;
+  return html;
+}
+
+function hideLoadingAnimation()
+{
+  let divProcess = document.getElementById('divProcess');
+  divProcess.innerHTML = '';
+}
+
+let pathname = document.location.pathname;
+let endPathname = pathname.substring(pathname.lastIndexOf('/') + 1);
+
+function closeModal(){
+  $('#modal1').modal('close');
+}
 
 
+function openSellOnCreditModal(){
+  $('#modalSellOnCredit').modal('open');
+}
 
-     let pathname = document.location.pathname;
-    let endPathname = pathname.substring(pathname.lastIndexOf('/') + 1);
+function closeSellOnCreditModal(){
+  $('#modalSellOnCredit').modal('close');
+}
 
-  function closeModal(){
-    $('#modal1').modal('close');
-  }
+function openGenerateInvoiceModel(){
+  $('#modelGenerateInvoice').modal('open');
+}
 
+function closeGenerateInvoiceModel(){
+  $('#modelGenerateInvoice').modal('close');
+}
 
-  function openSellOnCreditModal(){
-    $('#modalSellOnCredit').modal('open');
-  }
+function openAddItemModal(){
+  $('#modalAddItem').modal('open');
+}
 
-  function closeSellOnCreditModal(){
-    $('#modalSellOnCredit').modal('close');
-  }
+function closeAddItemModal(){
+  $('#modalAddItem').modal('close');
+}
 
-  function openAddItemModal(){
-    $('#modalAddItem').modal('open');
-  }
+function openModal(){
+  $('#modal1').modal('open');
+  document.getElementById('productName').focus();
+}
+let token = getToken();
+$(document).ready(function ()
+{
+    //   $('#tableBody').find('tr').click( function(){
+    //   if($(this).attr('class')=== undefined)
+    //     $(this).addClass('rowColor');
+    //   else
+    //     $(this).removeAttr('class');
+    // });
 
-  function closeAddItemModal(){
-    $('#modalAddItem').modal('close');
-  }
-
-  function openModal(){
-    $('#modal1').modal('open');
-    document.getElementById('productName').focus();
-  }
-  let token = getToken();
-  $(document).ready(function ()
-  {
+    firdos();
     $('.modal').modal();
     $('.tooltipped').tooltip();
     $('.collapsible').collapsible();
@@ -44,14 +81,13 @@
     $('.snavright').sidenav({
       menuWidth: 300,
       closeOnClick: true,
-      edge: 'right', // <--- CHECK THIS OUT
+      edge: 'right',
     }
-  );
-    // $('select').select2({width: "100%"});
+    );
+
     $('select').select2({width: "100%"});
     changePageName();
-    console.log(endPathname);
-    if (endPathname=='addproduct' || endPathname=='editproduct') 
+    if (endPathname=='addproduct') 
     {
       getBrands();
       getSizes();
@@ -59,12 +95,18 @@
       getLocations();
       getItems();
     }
+    else if(endPathname=='editproduct')
+    {
+      let pid = getValueFromUrl('pid');
+      (pid==null || pid=='' || pid.length<1) ? $('.socialcodia').html(getError('Something Went Wrong')) : getProductById(getValueFromUrl('pid'));
+    }
     else if (endPathname == 'selltoseller')
     {
       getSellers();
     }
     else if(endPathname=='dashboard')
     {
+      getAllCounts();
       getSalesStatusByMonth();
       getSellerSalesStatusByMonth();
       getSalesStatusByDays();
@@ -76,35 +118,108 @@
     else if (endPathname == 'seller')
     {
       setSellerIncome();
-    } 
+    }
+    else if(endPathname== 'salesall')
+    {
+      let date = new Date();
+      let day = date.getDate();
+      let month = date.getMonth() + 1;
+      let year = date.getFullYear();
+      if (month < 10) month = "0" + month;
+      if (day < 10) day = "0" + day;
+      let today = year + "-" + month + "-" + day;
+      document.getElementById('toDate').value = today;
+      document.getElementById('fromDate').value = today;
+      fetchProductRecordByDate();
+    }
+    else if(endPathname == 'products')
+    {
+      getAllProduct();
+    }
+    else if(endPathname == 'productsnotice')
+    {
+      getNoticeProducts();
+    }
+    else if(endPathname == 'expiringproducts')
+    {
+      getExpiringProducts();
+    }
+    else if(endPathname == 'expiredproducts')
+    {
+      getExpiredProducts();
+    }
+    else if(endPathname== 'salestoday')
+    {
+      getTodaysSalesRecord();
+    }
+    else if(endPathname == 'invoices')
+    {
+      getInvoices();
+    }
+    else if(endPathname == 'sellers')
+    {
+      getAllSellers();
+    }
+    else if(endPathname == 'productsrecord')
+    {
+      getProductsRecord();
+    }
+    else if(endPathname=='sell')
+    {
+      // getAvailableProducts();
+    }
+    else if(endPathname == 'credits')
+    {
+      getCredits();
+    }
   });
 
-  function previewSellerImage(input) 
-  {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
+function previewSellerImage(input) 
+{
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      $('#sellerImage')
+      .attr('src', e.target.result);
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
 
-        reader.onload = function (e) {
-            $('#sellerImage')
-                .attr('src', e.target.result);
-        };
-        reader.readAsDataURL(input.files[0]);
+function previewAdminImage(input) 
+{
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+
+    reader.onload = function (e) {
+      $('#adminImagePreview')
+      .attr('src', e.target.result);
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function setCategoryKar(firdos,mufazmi)
+{
+  let socialcodia = document.getElementById(firdos);
+  for (var i = 0; i < socialcodia.options.length; i++)
+  {
+    if (socialcodia.options[i].text == mufazmi)
+    {
+      socialcodia.options.selectedIndex = i;
+      console.log(socialcodia.options[i].text);
+      $('select').select2({width: "100%"});
     }
   }
+}
 
-  function previewAdminImage(input) 
-  {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
+function getValueFromUrl(key)
+{
+  let href = window.location.href;
+  let url = new URL(href);
+  return url.searchParams.get(key)
+}
 
-        reader.onload = function (e) {
-            $('#adminImagePreview')
-                .attr('src', e.target.result);
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
-  }
-  
 function setSelectedValue(name)
 {
   let selectBrand = document.getElementById('selectBrand');
@@ -136,9 +251,7 @@ function fetchItemAgain()
   if (endPathname==='addproduct')
   {
     getItems();
-    console.log('condition reigh');
   }
-  console.log('fetchItemAgain called');
 }
 
 function getToken() {
@@ -147,69 +260,70 @@ function getToken() {
   if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-  function setPageName(name)
-  {
-    let pageName = document.getElementById('pageName');
-    pageName.innerHTML = name;
-    document.title = name;
-  }
+function setPageName(name)
+{
+  let pageName = document.getElementById('pageName');
+  pageName.innerHTML = name;
+  document.title = name;
+}
 
-  function setButtonAtPageName()
-  {
-    let pageName = document.getElementById('pageName');
-    let button = '<Button class="btn blue" onclick="sellOnCredit()" id="sellOnCredit">Add Credit record</Button>'
-    pageName.innerHTML = button;
-    document.title = 'Sell Product';
-  }
+function setButtonAtPageName()
+{
+  let pageName = document.getElementById('pageName');
+  let button = '<a class="btn-floating waves-effect waves-light blue tooltipped" data-position="bottom" data-tooltip="Add Credit Record" onclick="sellOnCredit()" id="sellOnCredit"  ><i class="material-icons">credit_card</i></a>'
+  let button1 = '<a class="btn-floating waves-effect waves-light blue tooltipped" data-position="bottom" data-tooltip="Generate Invoice" onclick="generateInvoice()" id="generateInvoice"  ><i class="material-icons">assignment</i></a>'
+  // let button = '<Button class="btn blue" onclick="sellOnCredit()" id="sellOnCredit">Add Credit record</Button>'
+  pageName.innerHTML = button+button1;
+  document.title = 'Sell Product';
+}
 
-  function setAddItemButtonAtPageName()
-  {
-    let pageName = document.getElementById('pageName');
-    let button = '<Button class="btn blue" onclick="openAddItemModal()" id="btnOpenItemModal">Add an Item</Button>'
-    pageName.innerHTML = button;
-    document.title = 'Add Product';
-  }
+function setAddItemButtonAtPageName()
+{
+  let pageName = document.getElementById('pageName');
+  let button = '<Button class="btn blue" onclick="openAddItemModal()" id="btnOpenItemModal">Add an Item</Button>'
+  pageName.innerHTML = button;
+  document.title = 'Add Product';
+}
 
-  function creditPaidAmountChangeEvent()
-  {
-    let paidAmount = document.getElementById('paidAmount');
-    let totalPrice = document.getElementById('htmlCreditDiscountPrice');
-    let remainingAmount = document.getElementById('htmlCreditRemainingAmount');
+function creditPaidAmountChangeEvent()
+{
+  let paidAmount = document.getElementById('paidAmount');
+  let totalPrice = document.getElementById('htmlCreditDiscountPrice');
+  let remainingAmount = document.getElementById('htmlCreditRemainingAmount');
 
-    let amount = parseInt(paidAmount.value);
-    let price = parseInt(totalPrice.innerHTML);
-    let w = price-amount;
-    console.log(w);
-    if (w<0)
-    {
-      paidAmount.value = price;
-      remainingAmount.innerHTML = 0;
-      makeToast('error',"Amount Is Greater Than Credit Amount");
-    }
-    else
-      remainingAmount.innerHTML = price-amount;
-  }
-
-  function makeToast(icon,message)
+  let amount = parseInt(paidAmount.value);
+  let price = parseInt(totalPrice.innerHTML);
+  let w = price-amount;
+  if (w<0)
   {
-    Toast.fire({
-              icon: icon,
-              title: message
-            });
-    switch(icon)
-    {
-      case 'error':
-      playError();
-      break;
-      case 'warning':
-      playWarning();
-      break;
-      case 'success':
-      playSuccess();
-      break;
-    }
+    paidAmount.value = price;
+    remainingAmount.innerHTML = 0;
+    makeToast('error',"Amount Is Greater Than Credit Amount");
   }
-  let arraySalesId = new Array();
+  else
+    remainingAmount.innerHTML = price-amount;
+}
+
+function makeToast(icon,message)
+{
+  Toast.fire({
+    icon: icon,
+    title: message
+  });
+  switch(icon)
+  {
+    case 'error':
+    playError();
+    break;
+    case 'warning':
+    playWarning();
+    break;
+    case 'success':
+    playSuccess();
+    break;
+  }
+}
+let arraySalesId = new Array();
 
 function sellOnCredit()
 {
@@ -251,8 +365,48 @@ function sellOnCredit()
     SellOnCreditTableBody.append(tr);
     count++;
   }
-    htmlCreditDiscountPrice.innerHTML = htmlDiscountPrice.innerHTML;
-    creditPaidAmountChangeEvent();
+  htmlCreditDiscountPrice.innerHTML = htmlDiscountPrice.innerHTML;
+  creditPaidAmountChangeEvent();
+}
+
+function generateInvoice()
+{
+  arraySalesId = [];
+  let table = document.getElementById('mstrTable');
+  let count = 1;
+  let SellRecordTableBody = document.getElementById('SellRecordTableBody');
+  let GenerateInvoiceTableBody = document.getElementById('GenerateInvoiceTableBody');
+  let childrenLength = SellRecordTableBody.children.length;
+  if (childrenLength>0)
+    openGenerateInvoiceModel();
+  else
+    makeToast('error','Sale Record Is Empty')
+  GenerateInvoiceTableBody.innerHTML = '';
+  for(let i=0; i<childrenLength; i++)
+  {
+    let items = SellRecordTableBody.rows[i];
+    let tr = document.createElement('tr');
+    let saleId = items.cells[1].firstElementChild.value;
+    arraySalesId += saleId+',';
+    let productName = items.cells[2].innerHTML;
+    let productSize = items.cells[3].innerHTML;
+    let productPrice = items.cells[4].innerHTML;
+    let productQuantity = items.cells[5].firstElementChild.value;
+    let productSellPrice = items.cells[9].firstElementChild.value;
+    let productBrand = items.cells[10].innerHTML;
+    let tdSaleId = '<td>'+count+'</td>'
+    let tdProductName = '<td>'+productName+'</td>'
+    let tdProductSize = '<td>'+productSize+'</td>'
+    let tdProductPrice = '<td>'+productPrice+'</td>'
+    let tdProductQuantity = '<td>'+productQuantity+'</td>'
+    let tdProductSellPrice = '<td>'+productSellPrice+'</td>'
+    let tdProductBrand = '<td>'+productBrand+'</td>'
+    tr.innerHTML = tdSaleId+tdProductName+tdProductSize+tdProductPrice+tdProductQuantity+tdProductSellPrice+tdProductBrand;
+    GenerateInvoiceTableBody.append(tr);
+    count++;
+  }
+  htmlCreditDiscountPrice.innerHTML = htmlDiscountPrice.innerHTML;
+  creditPaidAmountChangeEvent();
 }
 
 function alertSellOnCredit()
@@ -267,7 +421,6 @@ function alertSellOnCredit()
   let mobile = crMobile.value;
   let address = crAddress.value;
   let amount = paidAmount.value;
-  console.log(arraySalesId);
   if (name=='' || name.length<3)
   {
     makeToast('error','Enter Name');
@@ -289,19 +442,86 @@ function alertSellOnCredit()
     return;
   }
   let text = "<b>You are going to add a credit record for <span class='blue-text'>"+name+"</span> which is paying you <h4 style='font-weight:bold; color:red'>"+amount+' Rupees'+"</h4> For this credit record</b>";
-      Swal.fire({
-        icon: 'warning',
-        title: 'Are you sure?',
-        showCancelButton: true,
-        confirmButtonText: `Accept Payment`,
-        denyButtonText: `Cancel Payment`,
-        html: text
-      }).then((result) => {
-      if (result.isConfirmed) 
-      {
-        sellOnCreditDB();
-      }
-      });
+  Swal.fire({
+    icon: 'warning',
+    title: 'Are you sure?',
+    showCancelButton: true,
+    confirmButtonText: `Accept Payment`,
+    denyButtonText: `Cancel Payment`,
+    html: text
+  }).then((result) => {
+    if (result.isConfirmed) 
+    {
+      sellOnCreditDB();
+    }
+  });
+}
+
+function alertGenerateInvoice()
+{
+  let crName = document.getElementById('customerNameInvoice');
+  let crMobile = document.getElementById('customerMobileInvoice');
+  let crAddress = document.getElementById('customerAddressInvoice');
+  let modelGenerateInvoice = document.getElementById('modelGenerateInvoice');
+  let invoiceModelContent = document.getElementById('invoiceModelContent');
+  let name = crName.value;
+  let mobile = crMobile.value;
+  let address = crAddress.value;
+  if (name=='' || name.length<3)
+  {
+    makeToast('error','Enter Name');
+    return;
+  }
+  if (mobile.length=='') 
+  {
+    makeToast('error','Enter Mobile Number');
+    return;
+  }
+  if (address.length<3)
+  {
+    makeToast('error','Enter Address');
+    return;
+  }
+  if (mobile.length!=10) 
+  {
+    makeToast('error','Enter Valid Mobile Number');
+    return;
+  }
+  let btnGenerateInvoice = document.getElementById('btnGenerateInvoice');
+
+  arraySalesId = arraySalesId.slice(0,-1);
+
+  btnGenerateInvoice.classList.add('disabled');
+  $.ajax({
+    headers:{  
+     'token':token
+   },
+   type:"post",
+   url:BASE_URL+"invoice/customer/pdf",
+   data: 
+   {  
+     'salesId' : arraySalesId,
+     'customerName' : name,
+     'customerMobile' : mobile,
+     'customerAddress' : address
+   },
+   success:function(response)
+   {
+
+    if (!response.error)
+    {
+    modelGenerateInvoice.classList.add('modelPDF');
+    let pdf = '<object style="width: -webkit-fill-available; height: -webkit-fill-available;" data="'+response.invoice+'"></object>';
+    invoiceModelContent.innerHTML = pdf;
+    playSuccess();
+    }
+    else
+    {
+      makeToast('error',response.message);
+    }
+  }
+});
+  btnSellOnCredit.classList.remove('disabled');
 }
 
 function sellOnCreditDB()
@@ -322,169 +542,167 @@ function sellOnCreditDB()
 
   btnSellOnCredit.classList.add('disabled');
   $.ajax({
-      headers:{  
-         'token':token
-      },
-      type:"post",
-      url:BASE_URL+"product/sell/credit",
-      data: 
-      {  
-         'creditorName' : name,
-         'creditorMobile' : mobile,
-         'creditorAddress' : address,
-         'paidAmount' : amount,
-         'creditDescription' : desc,
-         'salesId' : arraySalesId
-      },
-      success:function(response)
-      {
-        let desc = 'You have added '+amount+' Rupees';
-        console.log(response);
-        if (!response.error)
-        {
-          closeSellOnCreditModal();
-          playSuccess();
-          Swal.fire(
-            'Credit Added',
-             desc,
-            'success'
-          )
-          btnSellOnCredit.classList.add('disabled');
-        }
-        else
-        {
-          makeToast('error',response.message);
-          btnSellOnCredit.classList.remove('disabled');
-        }
-      }
-    });
-          btnSellOnCredit.classList.remove('disabled');
+    headers:{  
+     'token':token
+   },
+   type:"post",
+   url:BASE_URL+"product/sell/credit",
+   data: 
+   {  
+     'creditorName' : name,
+     'creditorMobile' : mobile,
+     'creditorAddress' : address,
+     'paidAmount' : amount,
+     'creditDescription' : desc,
+     'salesId' : arraySalesId
+   },
+   success:function(response)
+   {
+    let desc = 'You have added '+amount+' Rupees';
 
+    if (!response.error)
+    {
+      closeSellOnCreditModal();
+      playSuccess();
+      Swal.fire(
+        'Credit Added',
+        desc,
+        'success'
+        )
+      btnSellOnCredit.classList.add('disabled');
+    }
+    else
+    {
+      makeToast('error',response.message);
+      btnSellOnCredit.classList.remove('disabled');
+    }
+  }
+});
+  btnSellOnCredit.classList.remove('disabled');
 }
 
 JSON.stringifyIfObject = function stringifyIfObject(obj){
-    if(typeof obj == "object")
-        return JSON.stringify(obj);
-    else{
-        return obj;
-    }
+  if(typeof obj == "object")
+    return JSON.stringify(obj);
+  else{
+    return obj;
+  }
 }
 
 
-  function changePageName()
+function changePageName()
+{
+  let location = window.location.pathname;
+  let pathname = location.substring(location.lastIndexOf('/') + 1);
+
+  switch(pathname)
   {
-    let location = window.location.pathname;
-    let pathname = location.substring(location.lastIndexOf('/') + 1);
-    
-    switch(pathname)
-    {
-      case 'dashboard':
-          setPageName('Dashboard');
-        break;
-      case 'sell':
+    case 'dashboard':
+    setPageName('Dashboard');
+    break;
+    case 'sell':
           // setPageName('Sell Product');
           setButtonAtPageName();
-      break;
-      case 'products':
+          break;
+          case 'products':
           setPageName('All Products');
-        break;
-      case 'addproduct':
+          break;
+          case 'addproduct':
           setAddItemButtonAtPageName();
-        break;
-      case 'expiringproducts':
+          break;
+          case 'expiringproducts':
           setPageName('Expiring Products');
-        break;
-      case 'productsnotice':
+          break;
+          case 'productsnotice':
           setPageName('Products Notice');
-        break;
-      case 'expiredproducts':
+          break;
+          case 'expiredproducts':
           setPageName('Expired Products');
-        break;
-      case 'productsrecord':
+          break;
+          case 'productsrecord':
           setPageName('Products Record');
-        break;
-      case 'addproductsinfo':
+          break;
+          case 'addproductsinfo':
           setPageName('Add Products Information');
-      break;
-      case 'editproduct':
+          break;
+          case 'editproduct':
           setPageName('Edit Product');
-      break;
-      case 'salestoday':
+          break;
+          case 'salestoday':
           setPageName('Todays Sale');
-        break;
-      case 'salesall':
+          break;
+          case 'salesall':
           setPageName('All Sales');
-        break;
-      case 'addseller':
+          break;
+          case 'addseller':
           setPageName('Add Seller');
-        break;
-      case 'sellers':
+          break;
+          case 'sellers':
           setPageName('All Sellers');
-        break;
-      case 'selltoseller':
+          break;
+          case 'selltoseller':
           setPageName('Sell To Seller');
-        break;
-      case 'invoices':
+          break;
+          case 'invoices':
           setPageName('Invoices');
-        break;
-      case 'invoice':
+          break;
+          case 'invoice':
           setPageName('Invoice');
-        break;
-      case 'payment':
+          break;
+          case 'payment':
           setPageName('Payment');
-        break;
-      case 'sellers':
+          break;
+          case 'sellers':
           setPageName('All Sellers');
-        break;
-      case 'credits':
+          break;
+          case 'credits':
           setPageName('Credits');
-        break;
-      case 'creditors':
+          break;
+          case 'creditors':
           setPageName('Creditors');
-        break;
-      case 'admins':
+          break;
+          case 'admins':
           setPageName('Admins');
-        break;
-      case 'addadmin':
+          break;
+          case 'addadmin':
           setPageName('Add Admin');
-        break;
-      case 'settings':
+          break;
+          case 'settings':
           setPageName('Settings');
-        break;
-      default:
+          break;
+          default:
           setPageName('Social Codia');
-        break;
-      
-    }
-  }
+          break;
 
-  function openModalTextController()
-  {
-    let inputOpenModal = document.getElementById('inputOpenModal');
-    let inputModal = document.getElementById('productName');
-    inputModal.value = inputOpenModal.value;
-    inputModal.focus();
-    inputOpenModal.value = null;
-    openModal();
-    filterProduct();
-  }
+        }
+      }
 
-  function getSalesStatusByMonth()
-  {
-    let ctx = document.getElementById('chatSalesRecordOfMonths').getContext('2d');
-    $.ajax({
-        headers:{  
+      function openModalTextController()
+      {
+        let inputOpenModal = document.getElementById('inputOpenModal');
+        let inputModal = document.getElementById('productName');
+        inputModal.value = inputOpenModal.value;
+        inputModal.focus();
+        inputOpenModal.value = null;
+        openModal();
+        filterProduct();
+      }
+
+      function getSalesStatusByMonth()
+      {
+        let ctx = document.getElementById('chatSalesRecordOfMonths').getContext('2d');
+        $.ajax({
+          headers:{  
            'token':token
-        },
-        type:"get",
-        url:BASE_URL+"sales/status/months",
-        success:function(response)
-        {
-          console.log(response);
+         },
+         type:"get",
+         url:BASE_URL+"sales/status/months",
+         success:function(response)
+         {
+
           if(!response.error)
           {
             let status = response.status;
-            console.log(status);
             let labels = status.map((e)=>{
               return e.month;
             });
@@ -494,15 +712,15 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
               return e.totalSales;
             });
             let chatSalesRecordOfMonths = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: ['Monthly Sales'],
-                        data: data,
-                        backgroundColor: '#3e95cd'
-                    }]
-                }
+              type: 'line',
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: ['Monthly Sales'],
+                  data: data,
+                  backgroundColor: '#3e95cd'
+                }]
+              }
             });
           }
           else
@@ -511,25 +729,23 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
           }
         }
       });
-  }
+      }
 
-  function getSellerSalesStatusByMonth()
-  {
-    let ctx = document.getElementById('chatSellerSalesRecordOfMonths').getContext('2d');
-    $.ajax({
-        headers:{  
+      function getSellerSalesStatusByMonth()
+      {
+        let ctx = document.getElementById('chatSellerSalesRecordOfMonths').getContext('2d');
+        $.ajax({
+          headers:{  
            'token':token
-        },
-        type:"get",
-        url:BASE_URL+"seller/sales/status/months",
-        success:function(response)
-        {
-          console.log(response);
+         },
+         type:"get",
+         url:BASE_URL+"seller/sales/status/months",
+         success:function(response)
+         {
+
           if(!response.error)
           {
             let status = response.status;
-            console.log(status);
-            console.log('status');
             let labels = status.map((e)=>{
               return e.month;
             });
@@ -539,16 +755,16 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
               return e.totalSales;
             });
             let chatSellerSalesRecordOfMonths = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: ['Monthly Sales To Seller'],
-                        data: data,
-                        backgroundColor: "#3e95cd",
-                        borderColor: ['black','black','black','black','black','black',]
-                    }]
-                }
+              type: 'line',
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: ['Monthly Sales To Seller'],
+                  data: data,
+                  backgroundColor: "#3e95cd",
+                  borderColor: ['black','black','black','black','black','black',]
+                }]
+              }
             });
           }
           else
@@ -557,24 +773,23 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
           }
         }
       });
-  }
+      }
 
-  function chartTopProductsRecord()
-  {
-    let ctx = document.getElementById('chartTopProductsRecord').getContext('2d');
-    $.ajax({
-        headers:{  
+      function chartTopProductsRecord()
+      {
+        let ctx = document.getElementById('chartTopProductsRecord').getContext('2d');
+        $.ajax({
+          headers:{  
            'token':token
-        },
-        type:"get",
-        url:BASE_URL+"sales/status/products",
-        success:function(response)
-        {
-          console.log(response);
+         },
+         type:"get",
+         url:BASE_URL+"sales/status/products",
+         success:function(response)
+         {
+
           if(!response.error)
           {
             let products = response.products;
-            console.log(products);
             let labels = products.map((e)=>{
               return e.productName;
             });
@@ -583,38 +798,36 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
             {
               return e.saleQuantity;
             });
-            console.log(labels);
             let chartTopProductsRecord = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: ['TOP 10 Selling Products Of This Month'],
-                        data: data,
-                        backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
-                        borderColor: ['black','black','black','black','black','black',]
-                    }]
-                }
+              type: 'bar',
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: ['TOP 10 Selling Products Of This Month'],
+                  data: data,
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                  borderColor: ['black','black','black','black','black','black',]
+                }]
+              }
             });
           }
           else
             makeToast('error',response.message);
         }
       });
-  }
+      }
 
-  function setTopTenSellersMonthly()
-  {
-    let ctx = document.getElementById('chartTopTenSellersMonthly').getContext('2d');
-    $.ajax({
-        headers:{  
+      function setTopTenSellersMonthly()
+      {
+        let ctx = document.getElementById('chartTopTenSellersMonthly').getContext('2d');
+        $.ajax({
+          headers:{  
            'token':token
-        },
-        type:"get",
-        url:BASE_URL+"sellers/top/monthly",
-        success:function(response)
-        {
-          console.log(response);
+         },
+         type:"get",
+         url:BASE_URL+"sellers/top/monthly",
+         success:function(response)
+         {
           if(!response.error)
           {
             let sellers = response.sellers;
@@ -628,37 +841,35 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
             });
 
             let chartTopTenSellersMonthly = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: ['Top Ten Sellers Of This Month'],
-                        data: data,
-                        backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
-                        borderColor: ['black','black','black','black','black','black',]
-                    }]
-                }
+              type: 'bar',
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: ['Top Ten Sellers Of This Month'],
+                  data: data,
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                  borderColor: ['black','black','black','black','black','black',]
+                }]
+              }
             });
           }
           else
             makeToast('error',response.message);
         }
       });
-  }
+      }
 
-  function setTopTenSellersYearly()
-  {
-    let ctx = document.getElementById('chartTopTenSellersYearly').getContext('2d');
-    $.ajax({
-        headers:{  
+      function setTopTenSellersYearly()
+      {
+        let ctx = document.getElementById('chartTopTenSellersYearly').getContext('2d');
+        $.ajax({
+          headers:{  
            'token':token
-        },
-        type:"get",
-        url:BASE_URL+"sellers/top/yearly",
-        success:function(response)
-        {
-          console.log(response);
-          console.log('response');
+         },
+         type:"get",
+         url:BASE_URL+"sellers/top/yearly",
+         success:function(response)
+         {
           if(!response.error)
           {
             let sellers = response.sellers;
@@ -670,42 +881,534 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
             {
               return e.sales;
             });
-            console.log(labels);
             let chartTopTenSellersYearly = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: ['Top Ten Sellers Of This Year'],
-                        data: data,
-                        backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
-                        borderColor: ['black','black','black','black','black','black',]
-                    }]
-                }
+              type: 'bar',
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: ['Top Ten Sellers Of This Year'],
+                  data: data,
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                  borderColor: ['black','black','black','black','black','black',]
+                }]
+              }
             });
           }
           else
             makeToast('error',response.message);
         }
       });
-  }
+      }
 
-  function chartTopProductsRecordYearly()
-  {
-    let ctx = document.getElementById('chartTopProductsRecordYearly').getContext('2d');
-    $.ajax({
-        headers:{  
-           'token':token
-        },
-        type:"get",
-        url:BASE_URL+"sales/status/products/yearly",
-        success:function(response)
+      function fetchProductRecordByDate()
+      {
+        showLoadingAnimation();
+        let elemFromDate = document.getElementById('fromDate');
+        let elemToDate = document.getElementById('toDate');
+        let tableBody = document.getElementById('tableBody');
+        let totalPrice = document.getElementById('totalPrice');
+        let sellPrice = document.getElementById('sellPrice');
+        let btnFetchProduct = document.getElementById('btnFetchProduct');
+        let fromDate = elemFromDate.value;
+        let toDate = elemToDate.value;
+        let trList = '';
+        let count = 0;
+        let tPrice = 0;
+        let sPrice = 0;
+        let finalTPrice = 0;
+        let finalSPrice = 0;
+        if(fromDate=="")
         {
-          console.log(response);
+          makeToast('error','Select From Date');
+          return;
+        }
+        if(toDate=="")
+        {
+          makeToast('error','Select To Date');
+          return;
+        }
+        tableBody.innerHTML = '';
+        btnFetchProduct.classList.add('disabled');
+        elemFromDate.setAttribute('disabled','disabled');
+        elemToDate.setAttribute('disabled','disabled');
+        totalPrice.innerHTML = tPrice;
+        sellPrice.innerHTML = sPrice;
+        fetch(`${BASE_URL}sales/date/${fromDate}/${toDate}`,{
+          headers:{
+            'token' : token
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          hideLoadingAnimation();
+          btnFetchProduct.classList.remove('disabled');
+          elemFromDate.removeAttribute('disabled','disabled');
+          elemToDate.removeAttribute('disabled','disabled');
+          if(!data.error)
+          {
+            let sales = data.sales;
+            sales.forEach(sale => {
+              tPrice = sale.saleQuantity*sale.productPrice;
+              finalTPrice = finalTPrice + tPrice;
+              finalSPrice = finalSPrice + sale.salePrice;
+              count++;
+              let tr = `<tr><td>${count}</td><td>${sale.productCategory}</td><td class="blue-text darken-4">${sale.productName}</td><td style="font-weight:bold">${sale.productSize}</td><td>${sale.productPrice}</td><td>${sale.saleQuantity}</td><td>${tPrice}</td><td>${sale.saleDiscount} </td><td class="blue-text darken-4">${sale.productPrice}  </td><td class="blue-text darken-4">${sale.productBrand}</td><td>${sale.productManufacture}</td><td class="red-text">${sale.productExpire}</td><td>${sale.createdAt}</td></tr>`;
+              trList = trList + tr; 
+              tableBody.innerHTML='';
+            })
+            hideLoadingAnimation();
+            tableBody.innerHTML = trList;
+            totalPrice.innerHTML = finalTPrice;
+            sellPrice.innerHTML = finalSPrice;
+          }
+          else
+          {
+            tableBody.innerHTML = '';
+            makeToast('error',data.message);
+          }
+        });
+      }
+
+      function getAllProduct()
+      {
+        showLoadingAnimation();
+        let count = 0;
+        let trList = '';
+        let totalAmountOfSingleProduct = 0;
+        let totalAmount = 0;
+        let productName= document.getElementById('productName');
+        let divProcess= document.getElementById('divProcess');
+        productName.setAttribute('disabled','disabled');
+        let tableBody = document.getElementById('tableBody');
+        let elemTotalAmount = document.getElementById('totalAmount');
+        elemTotalAmount.innerHTML = totalAmount;
+        tableBody.innerHTML = '';
+        fetch(`${BASE_URL}/products`,{
+          headers:{
+            token:token
+          }
+        })
+        .then(response=>response.json())
+        .then(response=>{
           if(!response.error)
           {
             let products = response.products;
-            console.log(products);
+            products.forEach((product)=>{
+              totalAmountOfSingleProduct = product.productQuantity * product.productPrice;
+              totalAmount = totalAmount + totalAmountOfSingleProduct;
+              count++;
+              let tr = `<tr><td>${count}</td><td>${product.productBrand}</td><td class="blue-text darken-4 bold">${product.productName}</td><td style="font-weight:bold">${product.productSize}</td><td class="blue-text darken-4 bold">${product.productPrice}</td><td>${product.productQuantity}</td><td>${product.productLocation}</td><td class="blue-text darken-4"><span class="chip blue white-text">${product.productBrand}</span></td><td>${product.productManufacture}</td><td class="red-text">${product.productExpire}</td><td><a href="editproduct?pid=${product.productId}" style="border: 1px solid white;border-radius: 50%;" class="btn red"><i class="material-icons white-text">edit</i></a></td></tr>`;
+              trList = trList + tr;
+            });
+            hideLoadingAnimation();
+            productName.removeAttribute('disabled');
+            tableBody.innerHTML = trList;
+            elemTotalAmount.innerHTML = totalAmount;
+          }
+          else
+            $('.socialcodia').html(getError(response.message));
+        });
+      }
+
+      function getNoticeProducts()
+      {
+        showLoadingAnimation();
+        let count = 0;
+        let trList = '';
+        let totalAmountOfSingleProduct = 0;
+        let totalAmount = 0;
+        let productName= document.getElementById('productName');
+        productName.setAttribute('disabled','disabled');
+        let tableBody = document.getElementById('tableBody');
+        let elemTotalAmount = document.getElementById('totalAmount');
+        elemTotalAmount.innerHTML = totalAmount;
+        tableBody.innerHTML = '';
+        fetch(`${BASE_URL}/products/notice`,{
+          headers:{
+            token:token
+          }
+        })
+        .then(response=>response.json())
+        .then(response=>{
+          if(!response.error)
+          {
+            let products = response.products;
+            products.forEach((product)=>{
+              totalAmountOfSingleProduct = product.productQuantity * product.productPrice;
+              totalAmount = totalAmount + totalAmountOfSingleProduct;
+              count++;
+              let tr = `<tr><td>${count}</td><td>${product.productBrand}</td><td class="blue-text darken-4 bold">${product.productName}</td><td style="font-weight:bold">${product.productSize}</td><td class="blue-text darken-4 bold">${product.productPrice}</td><td>${product.productQuantity}</td><td>${product.productLocation}</td><td class="blue-text darken-4"><span class="chip blue white-text">${product.productBrand}</span></td><td>${product.productManufacture}</td><td class="red-text">${product.productExpire}</td></tr>`;
+              trList = trList + tr;
+            });
+            hideLoadingAnimation();
+            productName.removeAttribute('disabled');
+            tableBody.innerHTML = trList;
+            elemTotalAmount.innerHTML = totalAmount;
+          }
+          else
+            $('.socialcodia').html(getError(response.message));
+        });
+      }
+
+      function getExpiringProducts()
+      {
+        showLoadingAnimation();
+        let count = 0;
+        let trList = '';
+        let totalAmountOfSingleProduct = 0;
+        let totalAmount = 0;
+        let productName= document.getElementById('productName');
+        productName.setAttribute('disabled','disabled');
+        let tableBody = document.getElementById('tableBody');
+        let elemTotalAmount = document.getElementById('totalAmount');
+        elemTotalAmount.innerHTML = totalAmount;
+        tableBody.innerHTML = '';
+        fetch(`${BASE_URL}/products/expiring`,{
+          headers:{
+            token:token
+          }
+        })
+        .then(response=>response.json())
+        .then(response=>{
+          if(!response.error)
+          {
+            let products = response.products;
+            products.forEach((product)=>{
+              totalAmountOfSingleProduct = product.productQuantity * product.productPrice;
+              totalAmount = totalAmount + totalAmountOfSingleProduct;
+              count++;
+              let tr = `<tr><td>${count}</td><td>${product.productBrand}</td><td class="blue-text darken-4 bold">${product.productName}</td><td style="font-weight:bold">${product.productSize}</td><td class="blue-text darken-4 bold">${product.productPrice}</td><td>${product.productQuantity}</td><td>${product.productLocation}</td><td class="blue-text darken-4"><span class="chip blue white-text">${product.productBrand}</span></td><td>${product.productManufacture}</td><td class="red-text">${product.productExpire}</td></tr>`;
+              trList = trList + tr;
+            });
+            hideLoadingAnimation();
+            productName.removeAttribute('disabled');
+            tableBody.innerHTML = trList;
+            elemTotalAmount.innerHTML = totalAmount;
+          }
+          else
+            $('.socialcodia').html(getError(response.message));
+        });
+      }
+
+      function getExpiredProducts()
+      {
+        showLoadingAnimation();
+        let count = 0;
+        let trList = '';
+        let totalAmountOfSingleProduct = 0;
+        let totalAmount = 0;
+        let productName= document.getElementById('productName');
+        productName.setAttribute('disabled','disabled');
+        let tableBody = document.getElementById('tableBody');
+        let elemTotalAmount = document.getElementById('totalAmount');
+        elemTotalAmount.innerHTML = totalAmount;
+        tableBody.innerHTML = '';
+        fetch(`${BASE_URL}/products/expired`,{
+          headers:{
+            token:token
+          }
+        })
+        .then(response=>response.json())
+        .then(response=>{
+          if(!response.error)
+          {
+            let products = response.products;
+            products.forEach((product)=>{
+              totalAmountOfSingleProduct = product.productQuantity * product.productPrice;
+              totalAmount = totalAmount + totalAmountOfSingleProduct;
+              count++;
+              let tr = `<tr><td>${count}</td><td>${product.productBrand}</td><td class="blue-text darken-4 bold">${product.productName}</td><td style="font-weight:bold">${product.productSize}</td><td class="blue-text darken-4 bold">${product.productPrice}</td><td>${product.productQuantity}</td><td>${product.productLocation}</td><td class="blue-text darken-4"><span class="chip blue white-text">${product.productBrand}</span></td><td>${product.productManufacture}</td><td class="red-text">${product.productExpire}</td></tr>`;
+              trList = trList + tr;
+            });
+            hideLoadingAnimation();
+            productName.removeAttribute('disabled');
+            tableBody.innerHTML = trList;
+            elemTotalAmount.innerHTML = totalAmount;
+          }
+          else
+            $('.socialcodia').html(getError(response.message));
+        });
+      }
+
+      function getProductsRecord()
+      {
+        showLoadingAnimation();
+        let count = 0;
+        let trList = '';
+        let productName= document.getElementById('productName');
+        productName.setAttribute('disabled','disabled');
+        let tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+        fetch(`${BASE_URL}/products/records`,{
+          headers:{
+            token:token
+          }
+        })
+        .then(response=>response.json())
+        .then(response=>{
+          if(!response.error)
+          {
+            let products = response.products;
+            products.forEach((product)=>{
+              count++;
+              let tr = `<tr><td>${count}</td><td>${product.productBrand}</td><td class="blue-text darken-4 bold">${product.productName}</td><td style="font-weight:bold">${product.productSize}</td><td class="blue-text darken-4 bold">${product.productPrice}</td><td>${product.productQuantity}</td><td>${product.productLocation}</td><td class="blue-text darken-4"><span class="chip blue white-text">${product.productBrand}</span></td><td>${product.productManufacture}</td><td class="red-text">${product.productExpire}</td></tr>`;
+              trList = trList + tr;
+            });
+            hideLoadingAnimation();
+            productName.removeAttribute('disabled');
+            tableBody.innerHTML = trList;
+          }
+          else
+            $('.socialcodia').html(getError(response.message));
+        });
+      }
+
+      function getProductById(productId)
+      {
+        fetch(`${BASE_URL}/product/${productId}`,{
+          headers:{
+            token:token
+          }
+        })
+        .then(response=>response.json())
+        .then(response=>{
+          if(!response.error)
+          {
+            let product = response.products;
+            mBrand = product.productBrand;
+            mCategory = product.productCategory;
+            mSize = product.productSize;
+            mLocation = product.productLocation;
+            mName = product.productName;
+            let manDate = product.productManufacture;
+            let expDate = product.productExpire;
+            let manMonth = new Date(manDate).getMonth();
+            let expMonth = new Date(expDate).getMonth();
+            let manYear = new Date(manDate).getUTCFullYear();
+            let expYear = new Date(expDate).getUTCFullYear();
+            if(endPathname=='editproduct')
+            {
+              $('#productPrice').val(product.productPrice);
+              $('#productQuantity').val(product.productQuantity);
+              $('#productBarCode').val(product.barCode);
+              M.updateTextFields();
+              setCategoryKar('manMonth',monthNames[manMonth]);
+              setCategoryKar('manYear',manYear);
+              setCategoryKar('expMonth',monthNames[expMonth]);
+              setCategoryKar('expYear',expYear);
+              getBrands();
+              getSizes();
+              getCategories();
+              getLocations();
+              getItems();
+            }
+          }
+          else
+            $('.socialcodia').html(getError(response.message));
+        });
+      }
+
+      // We are not using this fucntion,
+      function getAvailableProducts()
+      {
+        showLoadingAnimation();
+        let count = 0;
+        let trList = '';
+        let productName= document.getElementById('productName');
+        productName.setAttribute('disabled','disabled');
+        let tableBody = document.getElementById('tableBody');
+        // tableBody.innerHTML = '';
+        fetch(`${BASE_URL}/products/available`,{
+          headers:{
+            token:token
+          }
+        })
+        .then(response=>response.json())
+        .then(response=>{
+          if(!response.error)
+          {
+            let products = response.products;
+            products.forEach((product)=>{
+              count++;
+              let tr = `<tr><td>${count}</td><td>${product.productBrand}</td><td class="blue-text darken-4 bold">${product.productName}</td><td style="font-weight:bold">${product.productSize}</td><td class="blue-text darken-4 bold">${product.productPrice}</td><td>${product.productQuantity}</td><td>${product.productLocation}</td><td class="blue-text darken-4"><span class="chip blue white-text">${product.productBrand}</span></td><td>${product.productManufacture}</td><td class="red-text">${product.productExpire}</td></tr>`;
+              trList = trList + tr;
+            });
+            // hideLoadingAnimation();
+            productName.removeAttribute('disabled');
+            firdos();
+            // tableBody.innerHTML = trList;
+          }
+          else
+            $('.socialcodia').html(getError(response.message));
+        });
+      }
+
+      function getCredits()
+      {
+        showLoadingAnimation();
+        let count = 0;
+        let trList = '';
+        let productName= document.getElementById('productName')
+        productName.setAttribute('disabled','disabled');
+        let tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+        showLoadingAnimation();
+        fetch(`${BASE_URL}/credits`,{
+          headers:{
+            token:token
+          }
+        })
+        .then(response=>response.json())
+        .then(response=>{
+          if(!response.error)
+          {
+            let credits = response.credits;
+            credits.forEach((credit)=>{
+              count++;
+              let tr = `<tr><td>${count}</td><td class="blue-text darken-4">${credit.creditor.creditorName}</td><td class="blue-text darken-4 chip red white-text" style="margin-top:17px;">${credit.creditStatus}</td><td>${credit.creditTotalAmount}</td><td>${credit.creditPaidAmount}</td><td>${credit.creditRemainingAmount}</td><td class="blue-text darken-4">${credit.creditDate}</td><td><a href="credit?cid=${credit.creditId}" style="border: 1px solid white;border-radius: 50%;" class="btn blue" data-position="top" data-tooltip="View credit"><i class="material-icons white-text">remove_red_eye</i></a></td></tr>`;
+              trList = trList + tr;
+            });
+            hideLoadingAnimation();
+            productName.removeAttribute('disabled');
+            tableBody.innerHTML = trList;
+          }
+          else
+            $('.socialcodia').html(getError(response.message));
+        });
+      }
+
+      function getTodaysSalesRecord()
+      {
+        showLoadingAnimation();
+        let count = 0;
+        let trList = '';
+        let totalAmountOfSingleProduct = 0;
+        let totalAmount = 0;
+        let saleAmount = 0;
+        let productName= document.getElementById('productName');
+        productName.setAttribute('disabled','disabled');
+        let tableBody = document.getElementById('tableBody');
+        let elemTotalAmount = document.getElementById('totalAmount');
+        let elemSaleAmount = document.getElementById('saleAmount');
+        elemSaleAmount.innerHTML = saleAmount; 
+        elemTotalAmount.innerHTML = totalAmount;
+        tableBody.innerHTML = '';
+        fetch(`${BASE_URL}/sales/today`,{
+          headers:{
+            token:token
+          }
+        })
+        .then(response=>response.json())
+        .then(response=>{
+          if(!response.error)
+          {
+            let sales = response.sales;
+            sales.forEach((sale)=>{
+              totalAmountOfSingleProduct = sale.saleQuantity * sale.productPrice;
+              totalAmount = totalAmount + totalAmountOfSingleProduct;
+              saleAmount = saleAmount + sale.salePrice;
+              count++;
+              let tr = `<tr id="rowId${sale.saleId}"><td>${count}</td><td>${sale.productCategory}</td><td class="blue-text darken-4">${sale.productName}</td><td style="font-weight:bold">${sale.productSize}</td><td>${sale.productPrice}</td><td>${sale.saleQuantity}</td><td class="blue-text darken-4">${totalAmountOfSingleProduct}</td><td>${sale.saleDiscount}% </td><td>${sale.salePrice} </td><td class="blue-text darken-4">${sale.productBrand}</td><td>${sale.productManufacture}</td><td class="red-text">${sale.productExpire}</td><td class="center">${sale.createdAt}</td><td><button id="btnDelete${sale.saleId}" value="${sale.saleId}" onclick="alertDeleteSaleProduct(this.value)" style="border: 1px solid white;border-radius: 50%;" class="btn red"><i class="material-icons white-text">delete_forever</i></button></td></tr>`;
+              trList = trList + tr;
+            });
+            hideLoadingAnimation();
+            productName.removeAttribute('disabled');
+            tableBody.innerHTML = trList;
+            elemTotalAmount.innerHTML = totalAmount;
+            elemSaleAmount.innerHTML = saleAmount;
+          }
+          else
+            $('.socialcodia').html(getError(response.message));
+        });
+      }
+
+      function getInvoices()
+      {
+        showLoadingAnimation();
+        let count = 0;
+        let trList = '';
+        let productName= document.getElementById('productName');
+        productName.setAttribute('disabled','disabled');
+        let tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+        fetch(`${BASE_URL}/invoices`,{
+          headers:{
+            token:token
+          }
+        })
+        .then(response=>response.json())
+        .then(response=>{
+          if(!response.error)
+          {
+            let invoices = response.invoices;
+            invoices.forEach((invoice)=>{
+              count++;
+              let tr = `<tr><td>${count}</td><td><img src="${invoice.sellerImage}" class="circle" style="width:50px; height:50px; border:2px solid red"></td><td class="blue-text darken-4">${invoice.sellerName}</td><td style="font-weight:bold">${invoice.invoiceNumber}</td><td class="blue-text darken-4 chip blue white-text" style="margin-top:25px;">${invoice.invoiceStatus}</td><td>${invoice.invoiceAmount}</td><td>${invoice.invoicePaidAmount}</td><td>${invoice.invoiceRemainingAmount}</td><td class="blue-text darken-4">${invoice.invoiceDate}</td><td><a href="invoice?inum=${invoice.invoiceNumber}" style="border: 1px solid white;border-radius: 50%;" class="btn blue" data-position="top" data-tooltip="View Invoice"><i class="material-icons white-text">remove_red_eye</i></a><a href="payment?inum=${invoice.invoiceNumber}" style="border: 1px solid white;border-radius: 50%;" class="btn red" data-position="top" data-tooltip="Pay Amount"><i class="material-icons white-text">attach_money</i></a></td></tr>`;
+              trList = trList + tr;
+            });
+            hideLoadingAnimation();
+            productName.removeAttribute('disabled');
+            tableBody.innerHTML = trList;
+          }
+          else
+            $('.socialcodia').html(getError(response.message));
+        });
+      }
+
+      function getAllSellers()
+      {
+        showLoadingAnimation();
+        let count = 0;
+        let trList = '';
+        let sellerImage = 'src/img/user.png';
+        let productName= document.getElementById('productName');
+        productName.setAttribute('disabled','disabled');
+        let tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+        fetch(`${BASE_URL}/sellers`,{
+          headers:{
+            token:token
+          }
+        })
+        .then(response=>response.json())
+        .then(response=>{
+          if(!response.error)
+          {
+            let sellers = response.sellers;
+            sellers.forEach((seller)=>{
+              count++;
+              if(seller.sellerImage!=null)
+                sellerImage = seller.sellerImage;
+              else
+                sellerImage =  'src/img/user.png';
+              let tr = `<tr><td>${count}</td><td><a href="seller?sid=${seller.sellerId}"><img src="${sellerImage}" class="circle" style="width:50px; height:50px; border:2px solid red"></a></td><td class="blue-text darken-4"><a href="seller?sid=${seller.sellerId}">${seller.sellerName}</a></td><td style="font-weight:bold"></td><td class="blue-text darken-4">${seller.sellerContactNumber} , ${seller.sellerContactNumber1}</td><td>${seller.sellerAddress}</td></tr>`;
+              trList = trList + tr;
+            });
+            hideLoadingAnimation();
+            productName.removeAttribute('disabled');
+            tableBody.innerHTML = trList;
+          }
+          else
+            $('.socialcodia').html(getError(response.message));
+        });
+      }
+
+
+      function chartTopProductsRecordYearly()
+      {
+        let ctx = document.getElementById('chartTopProductsRecordYearly').getContext('2d');
+        $.ajax({
+          headers:{  
+           'token':token
+         },
+         type:"get",
+         url:BASE_URL+"sales/status/products/yearly",
+         success:function(response)
+         {
+
+          if(!response.error)
+          {
+            let products = response.products;
             let labels = products.map((e)=>{
               return e.productName;
             });
@@ -715,40 +1418,39 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
               return e.saleQuantity;
             });
             let chartTopProductsRecordYearly = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: ['TOP 10 Selling Products Of This Year'],
-                        data: data,
-                        backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
-                        borderColor: ['black','black','black','black','black','black',]
-                    }]
-                }
+              type: 'bar',
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: ['TOP 10 Selling Products Of This Year'],
+                  data: data,
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                  borderColor: ['black','black','black','black','black','black',]
+                }]
+              }
             });
           }
           else
             makeToast('error',response.message);
         }
       });
-  }
+      }
 
-  function getSalesStatusByDays()
-  {
-    let ctx = document.getElementById('chatSalesRecordOfDays').getContext('2d');
-    $.ajax({
-        headers:{  
+      function getSalesStatusByDays()
+      {
+        let ctx = document.getElementById('chatSalesRecordOfDays').getContext('2d');
+        $.ajax({
+          headers:{  
            'token':token
-        },
-        type:"get",
-        url:BASE_URL+"sales/status/days",
-        success:function(response)
-        {
-          console.log(response);
+         },
+         type:"get",
+         url:BASE_URL+"sales/status/days",
+         success:function(response)
+         {
+
           if(!response.error)
           {
             let status = response.status;
-            console.log(status);
             let labels = status.map((e)=>{
               return e.day;
             });
@@ -758,41 +1460,40 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
               return e.totalSales;
             });
             let chatSalesRecordOfDays = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: ['Daily Sales'],
-                        data: data,
-                        backgroundColor: "#3e95cd"
-                    }]
-                }
+              type: 'line',
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: ['Daily Sales'],
+                  data: data,
+                  backgroundColor: "#3e95cd"
+                }]
+              }
             });
           }
           else
             makeToast('error',response.message);
         }
       });
-  }
+      }
 
-  function setSellerIncome()
-  {
-    let url = new URL(window.location.href);
-    var sellerId = url.searchParams.get('sid');
-    let ctx = document.getElementById('chartSellerIncome').getContext('2d');
-    $.ajax({
-        headers:{  
+      function setSellerIncome()
+      {
+        let url = new URL(window.location.href);
+        var sellerId = url.searchParams.get('sid');
+        let ctx = document.getElementById('chartSellerIncome').getContext('2d');
+        $.ajax({
+          headers:{  
            'token':token
-        },
-        type:"get",
-        url:BASE_URL+"seller/"+sellerId+"/income",
-        success:function(response)
-        {
-          console.log(response);
+         },
+         type:"get",
+         url:BASE_URL+"seller/"+sellerId+"/income",
+         success:function(response)
+         {
+
           if(!response.error)
           {
             let incomes = response.incomes;
-            console.log(incomes);
             let labels = incomes.map((e)=>{
               return e.monthName;
             });
@@ -807,150 +1508,153 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
               return e.maxProfit;
             });
             let chartSellerIncome = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: ['Min Income'],
-                        data: data,
-                        backgroundColor: "red"
-                    },{
-                        label: ['Max Income'],
-                        data: data1,
-                        backgroundColor: "#3e95cd"
-                    }]
-                }
+              type: 'bar',
+              data: {
+                labels: labels,
+                datasets: [{
+                  label: ['Min Income'],
+                  data: data,
+                  backgroundColor: "red"
+                },{
+                  label: ['Max Income'],
+                  data: data1,
+                  backgroundColor: "#3e95cd"
+                }]
+              }
             });
           }
           else
             makeToast('error',response.message);
         }
       });
-  }
+      }
 
-  let productTable = document.getElementById('productTable');
-  let tableBody = document.getElementById('tableBody');
+      let productTable = document.getElementById('productTable');
+      let tableBody = document.getElementById('tableBody');
 
-  if ((endPathname=='sell') || (endPathname=='selltoseller'))
-    {
-      (function() {
-    var trows = document.getElementById('mstrTable').rows, t = trows.length, trow, nextrow,
-    // rownum = document.getElementById('rownum'),
-    addEvent = (function(){return window.addEventListener? function(el, ev, f){
-            el.addEventListener(ev, f, false); //modern browsers
-        }:window.attachEvent? function(el, ev, f){
-            el.attachEvent('on' + ev, function(e){f.apply(el, [e]);}); //IE 8 and less
-        }:function(){return;}; //a very old browser (IE 4 or less, or Mozilla, others, before Netscape 6), so let's skip those
-    })();
+      function firdos()
+      {
+       if ((endPathname=='sell') || (endPathname=='selltoseller'))
+       {
+        (function() {
+          var trows = document.getElementById('mstrTable').rows, t = trows.length, trow, nextrow,
+            // rownum = document.getElementById('rownum'),
+            addEvent = (function(){return window.addEventListener? function(el, ev, f){
+                    el.addEventListener(ev, f, false); //modern browsers
+                  }:window.attachEvent? function(el, ev, f){
+                    el.attachEvent('on' + ev, function(e){f.apply(el, [e]);}); //IE 8 and less
+                }:function(){return;}; //a very old browser (IE 4 or less, or Mozilla, others, before Netscape 6), so let's skip those
+              })();
 
-    function option(num){
-      // console.log(num);
-        // var o = document.createElement('option');
-        // o.value = num;
-        // rownum.insertBefore(o, rownum.options[1]); //IE 8 and less, must insert to page before setting text property
-        let o = trows[num].cells[0].innerHTML + ' (' + num + ')';
-        return o;
-    }
+              function option(num){
+              // console.log(num);
+                // var o = document.createElement('option');
+                // o.value = num;
+                // rownum.insertBefore(o, rownum.options[1]); //IE 8 and less, must insert to page before setting text property
+                let o = trows[num].cells[0].innerHTML + ' (' + num + ')';
+                return o;
+              }
 
-    // function rownumchange(){
-    //     if(this.value > 0){ //activates the highlight function for the selected row (highlights it)
-    //         highlightRow.apply(trows[this.value]);
-    //     } else { //activates the highlight function for the row that is currently highlighted (turns it off)
-    //         highlightRow.apply(trows[highlightRow(true)]);
-    //     }
-    //     this.blur(); //prevent Mozilla from firing on internal events that change rownum's value
-    // }
+            // function rownumchange(){
+            //     if(this.value > 0){ //activates the highlight function for the selected row (highlights it)
+            //         highlightRow.apply(trows[this.value]);
+            //     } else { //activates the highlight function for the row that is currently highlighted (turns it off)
+            //         highlightRow.apply(trows[highlightRow(true)]);
+            //     }
+            //     this.blur(); //prevent Mozilla from firing on internal events that change rownum's value
+            // }
 
-    // addEvent(rownum, 'change', rownumchange);
+            // addEvent(rownum, 'change', rownumchange);
 
-    // rownum.value = 0; //reset for browsers that remember select values on reload
+            // rownum.value = 0; //reset for browsers that remember select values on reload
 
-    while (--t > 0) {
-        trow = trows[t];
-        trow.className = 'normal';
-        addEvent(trow, 'click', highlightRow);
-        option(t);
-    }//end while
+            while (--t > 0) {
+              trow = trows[t];
+              trow.className = 'normal';
+              addEvent(trow, 'click', highlightRow);
+              option(t);
+            }//end while
 
-    function highlightRow(gethighlight) { //now dual use - either set or get the highlighted row
-        gethighlight = gethighlight === true;
-        var t = trows.length;
-        while (--t > 0) {
-            trow = trows[t];
-            if(gethighlight && trow.className === 'highlighted'){return t;}
-            else if (!gethighlight){
-                if(trow !== this) { trow.className = 'normal'; }
-                // else if(this.className === 'normal') { rownum.value = t; }
-                // else { rownum.value = 0; }
-            }
-        }//end while
+            function highlightRow(gethighlight) { //now dual use - either set or get the highlighted row
+              gethighlight = gethighlight === true;
+              var t = trows.length;
+              while (--t > 0) {
+                trow = trows[t];
+                if(gethighlight && trow.className === 'highlighted'){return t;}
+                else if (!gethighlight){
+                  if(trow !== this) { trow.className = 'normal'; }
+                        // else if(this.className === 'normal') { rownum.value = t; }
+                        // else { rownum.value = 0; }
+                      }
+                }//end while
 
-        return gethighlight? null : this.className = this.className === 'highlighted'? 'normal' : 'highlighted';
-    }//end function
+                return gethighlight? null : this.className = this.className === 'highlighted'? 'normal' : 'highlighted';
+            }//end function
 
-      function movehighlight(way, e){
-          e.preventDefault && e.preventDefault();
-          e.returnValue = false;
-          var idx = highlightRow(true); //gets current index or null if none highlighted
-          // console.log(idx);
-          if(typeof idx === 'number'){//there was a highlighted row
-              idx += way; //increment\decrement the index value
-              
-              if(idx && (nextrow = trows[idx])){ return highlightRow.apply(nextrow); } //index is > 0 and a row exists at that index
-              else if(idx){ return highlightRow.apply(trows[1]); } //index is out of range high, go to first row
-              return highlightRow.apply(trows[trows.length - 1]); //index is out of range low, go to last row
+            function movehighlight(way, e){
+              e.preventDefault && e.preventDefault();
+              e.returnValue = false;
+                  var idx = highlightRow(true); //gets current index or null if none highlighted
+                  // console.log(idx);
+                  if(typeof idx === 'number'){//there was a highlighted row
+                      idx += way; //increment\decrement the index value
+                      
+                      if(idx && (nextrow = trows[idx])){ return highlightRow.apply(nextrow); } //index is > 0 and a row exists at that index
+                      else if(idx){ return highlightRow.apply(trows[1]); } //index is out of range high, go to first row
+                      return highlightRow.apply(trows[trows.length - 1]); //index is out of range low, go to last row
+                    }
+                  return highlightRow.apply(trows[way > 0? 1 : trows.length - 1]); //none was highlighted - go to 1st if down arrow, last if up arrow
+              }//end function
+
+              function processkey(e){
+                switch(e.keyCode){
+                      case 38: {//up arrow
+                        return movehighlight(-1, e);
+                      }
+                      case 40: {//down arrow
+                        return movehighlight(1, e);
+                      }
+                      case 13: {//down arrow
+                       let o = highlightRow(true);
+                       let pid = trows[o].childNodes[1].id;
+                       if ($('#modal1').hasClass('open'))
+                       {
+                        let inputInvoiceNumber = document.getElementById('inputInvoiceNumber');
+                        if (endPathname=='sell')
+                          sellProduct(pid);
+                        else if (endPathname=='selltoseller')
+                          sellToSeller(pid,inputInvoiceNumber.value);
+                      }
+                      closeModal();
+                           // $("td",trow).each(function(){
+                           //  //access the value as
+                           //   console.log($(this).html());
+                           //  });
+                         }
+                         default: {
+                          return true;
+                        }
+                      }
+              }//end function
+
+              addEvent(document, 'keydown', processkey);
+              addEvent(window, 'unload', function(){}); //optional, resets the page for browsers that remember the script state on back and forward buttons
+
+            }/* end function */)();//execute function and end script
           }
-          return highlightRow.apply(trows[way > 0? 1 : trows.length - 1]); //none was highlighted - go to 1st if down arrow, last if up arrow
-      }//end function
-
-      function processkey(e){
-          switch(e.keyCode){
-              case 38: {//up arrow
-                  return movehighlight(-1, e);
-              }
-              case 40: {//down arrow
-                  return movehighlight(1, e);
-              }
-              case 13: {//down arrow
-                   let o = highlightRow(true);
-                   let pid = trows[o].childNodes[1].id;
-                  if ($('#modal1').hasClass('open'))
-                  {
-                    let inputInvoiceNumber = document.getElementById('inputInvoiceNumber');
-                    if (endPathname=='sell')
-                      sellProduct(pid);
-                    else if (endPathname=='selltoseller')
-                      sellToSeller(pid,inputInvoiceNumber.value);
-                  }
-                   closeModal();
-                   // $("td",trow).each(function(){
-                   //  //access the value as
-                   //   console.log($(this).html());
-                   //  });
-              }
-              default: {
-                  return true;
-              }
-          }
-      }//end function
-
-      addEvent(document, 'keydown', processkey);
-      addEvent(window, 'unload', function(){}); //optional, resets the page for browsers that remember the script state on back and forward buttons
-
-    }/* end function */)();//execute function and end script
-    }
-
-    const Toast = Swal.mixin({
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-          toast.addEventListener('mouseenter', Swal.stopTimer)
-          toast.addEventListener('mouseleave', Swal.resumeTimer)
         }
-      })
+
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          }
+        })
 
     // document.addEventListener("DOMContentLoaded", getCategories());
 
@@ -963,7 +1667,7 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       for (i = 1; i < tr.length; i++) {
         // Hide the row initially.
         tr[i].style.display = "none";
-      
+
         td = tr[i].getElementsByTagName("td");
         for (var j = 0; j < td.length; j++) {
           cell = tr[i].getElementsByTagName("td")[j];
@@ -989,13 +1693,12 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       let selectItem = document.getElementById('selectItem');
       let productPrice = document.getElementById('productPrice');
       let productQuantity = document.getElementById('productQuantity');
-      let productId = document.getElementById('productId');
+      let productId = getValueFromUrl('pid');
       let productBarCode = document.getElementById('productBarCode');
       let btnUpdateProduct = document.getElementById('btnUpdateProduct');
-      if (productId.value<1)
+      if (productId<1)
       {
-        console.log(productId.value);
-            makeToast('error',"Please Refresh The Page");
+        makeToast('error',"Please Refresh The Page");
         return;
       }
       if (selectBrand.value<1)
@@ -1076,47 +1779,40 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"product/update",
-        data: 
-        {  
-           'productId' : productId.value,
-           'productName' : selectItem.value,
-           'productBrand':selectBrand.value,
-           'productCategory':selectCategory.value,
-           'productSize':selectSize.value,
-           'productLocation':selectLocation.value,
-           'productPrice':productPrice.value,
-           'productQuantity':productQuantity.value,
-           'productManufactureDate':productManufactureDate,
-           'productExpireDate':productExpireDate,
-           'productBarCode':productBarCode.value
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"product/update",
+       data: 
+       {  
+         'productId' : productId,
+         'productName' : selectItem.value,
+         'productBrand':selectBrand.value,
+         'productCategory':selectCategory.value,
+         'productSize':selectSize.value,
+         'productLocation':selectLocation.value,
+         'productPrice':productPrice.value,
+         'productQuantity':productQuantity.value,
+         'productManufactureDate':productManufactureDate,
+         'productExpireDate':productExpireDate,
+         'productBarCode':productBarCode.value
+       },
+       success:function(response)
+       {
+
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-            playSuccess();
-            console.log(response);
-            makeToast('success',response.message);
-            btnUpdateProduct.classList.remove('disabled');
-          }
-          else
-          {
-            playWarning();
-            productQuantity.value = '';
-            // manMonth.selectedIndex = 0;
-            // manYear.selectedIndex = 0;
-            // expMonth.selectedIndex = 0;
-            // expYear.selectedIndex = 0;
-            makeToast('error',response.message);
-            btnUpdateProduct.classList.remove('disabled');
-          }
+          makeToast('success',response.message);
+          btnUpdateProduct.classList.remove('disabled');
         }
-      });
+        else
+        {
+          productQuantity.value = '';
+          makeToast('error',response.message);
+          btnUpdateProduct.classList.remove('disabled');
+        }
+      }
+    });
     }
 
     function addProduct()
@@ -1212,42 +1908,39 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"product/add",
-        data: 
-        {  
-           'productName' : selectItem.value,
-           'productBrand':selectBrand.value,
-           'productCategory':selectCategory.value,
-           'productSize':selectSize.value,
-           'productLocation':selectLocation.value,
-           'productPrice':productPrice.value,
-           'productQuantity':productQuantity.value,
-           'productManufactureDate':productManufactureDate,
-           'productExpireDate':productExpireDate,
-           'productBarCode' : productBarCode.value
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"product/add",
+       data: 
+       {  
+         'productName' : selectItem.value,
+         'productBrand':selectBrand.value,
+         'productCategory':selectCategory.value,
+         'productSize':selectSize.value,
+         'productLocation':selectLocation.value,
+         'productPrice':productPrice.value,
+         'productQuantity':productQuantity.value,
+         'productManufactureDate':productManufactureDate,
+         'productExpireDate':productExpireDate,
+         'productBarCode' : productBarCode.value
+       },
+       success:function(response)
+       {
+
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-            playSuccess();
-            console.log(response);
-            makeToast('success',response.message);
-            productQuantity.value = '';
-            btnAddProduct.classList.remove('disabled');
-          }
-          else
-          {
-            playWarning();
-            makeToast('error',response.message);
-            btnAddProduct.classList.remove('disabled');
-          }
+          makeToast('success',response.message);
+          productQuantity.value = '';
+          btnAddProduct.classList.remove('disabled');
         }
-      });
+        else
+        {
+          makeToast('error',response.message);
+          btnAddProduct.classList.remove('disabled');
+        }
+      }
+    });
     }
 
     function alertMakePayment()
@@ -1264,19 +1957,19 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
         return;
       }
       let text = "<b>The seller <span class='blue-text'>"+sellerName+"</span> is paying you <h4 style='font-weight:bold; color:red'>"+paymentAmount+' Rupees'+"</h4> For Invoice <span class='blue-text'>"+invoiceNumber+"</span></b>";
-          Swal.fire({
-            icon: 'warning',
-            title: 'Are you sure?',
-            showCancelButton: true,
-            confirmButtonText: `Accept Payment`,
-            denyButtonText: `Cancel Payment`,
-            html: text
-          }).then((result) => {
-          if (result.isConfirmed) 
-          {
-            payAmount();
-          }
-          });
+      Swal.fire({
+        icon: 'warning',
+        title: 'Are you sure?',
+        showCancelButton: true,
+        confirmButtonText: `Accept Payment`,
+        denyButtonText: `Cancel Payment`,
+        html: text
+      }).then((result) => {
+        if (result.isConfirmed) 
+        {
+          payAmount();
+        }
+      });
     }
 
     function payAmount()
@@ -1298,43 +1991,43 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       }
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"payment/add",
-        data: 
-        {  
-           'paymentAmount' : paymentAmount,
-           'sellerId' : sellerId,
-           'invoiceNumber' : invoiceNumber
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"payment/add",
+       data: 
+       {  
+         'paymentAmount' : paymentAmount,
+         'sellerId' : sellerId,
+         'invoiceNumber' : invoiceNumber
+       },
+       success:function(response)
+       {
+        let desc = 'You have added '+paymentAmount+' Rupees';
+        
+        if (!response.error)
         {
-          let desc = 'You have added '+paymentAmount+' Rupees';
-          console.log(response);
-          if (!response.error)
-          {
-            inputPaymentAmount.value = '';
-            invoicePaidAmount.innerHTML = parseInt(invoicePaidAmount.innerHTML)+parseInt(paymentAmount);
-            invoiceRemainingAmount.innerHTML = parseInt(invoiceRemainingAmount.innerHTML)-parseInt(paymentAmount);
-            playSuccess();
-            Swal.fire(
-              'Payment Added',
-               desc,
-              'success'
+          inputPaymentAmount.value = '';
+          invoicePaidAmount.innerHTML = parseInt(invoicePaidAmount.innerHTML)+parseInt(paymentAmount);
+          invoiceRemainingAmount.innerHTML = parseInt(invoiceRemainingAmount.innerHTML)-parseInt(paymentAmount);
+          playSuccess();
+          Swal.fire(
+            'Payment Added',
+            desc,
+            'success'
             )
-            btnPayment.classList.remove('disabled');
-          }
-          else
-          {
-            makeToast('error',response.message);
-            btnPayment.classList.remove('disabled');
-          }
+          btnPayment.classList.remove('disabled');
         }
-      });
+        else
+        {
+          makeToast('error',response.message);
+          btnPayment.classList.remove('disabled');
+        }
+      }
+    });
     }
 
-     function alertAcceptCreditPayment()
+    function alertAcceptCreditPayment()
     {
       let paymentAmount = document.getElementById('paymentAmount');
       let creditorName = document.getElementById('creditorName');
@@ -1348,19 +2041,19 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
         return;
       }
       let text = "<b>The Creditor <span class='blue-text'>"+creditorName+"</span> is paying you <h4 style='font-weight:bold; color:red'>"+paymentAmount+' Rupees'+"</h4> For credit which they have taken on <span class='blue-text'>"+creditDate+"</span></b>";
-          Swal.fire({
-            icon: 'warning',
-            title: 'Are you sure?',
-            showCancelButton: true,
-            confirmButtonText: `Accept Payment`,
-            denyButtonText: `Cancel Payment`,
-            html: text
-          }).then((result) => {
-          if (result.isConfirmed) 
-          {
-            acceptCreditAmount();
-          }
-          });
+      Swal.fire({
+        icon: 'warning',
+        title: 'Are you sure?',
+        showCancelButton: true,
+        confirmButtonText: `Accept Payment`,
+        denyButtonText: `Cancel Payment`,
+        html: text
+      }).then((result) => {
+        if (result.isConfirmed) 
+        {
+          acceptCreditAmount();
+        }
+      });
     }
 
     function acceptCreditAmount()
@@ -1380,39 +2073,39 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       }
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"credit/payment/add",
-        data: 
-        {  
-           'paymentAmount' : paymentAmount,
-           'creditId' : creditId
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"credit/payment/add",
+       data: 
+       {  
+         'paymentAmount' : paymentAmount,
+         'creditId' : creditId
+       },
+       success:function(response)
+       {
+        let desc = 'You have added '+paymentAmount+' Rupees';
+        
+        if (!response.error)
         {
-          let desc = 'You have added '+paymentAmount+' Rupees';
-          console.log(response);
-          if (!response.error)
-          {
-            inputPaymentAmount.value = '';
-            creditPaidAmount.innerHTML = parseInt(creditPaidAmount.innerHTML)+parseInt(paymentAmount);
-            creditRemainingAmount.innerHTML = parseInt(creditRemainingAmount.innerHTML)-parseInt(paymentAmount);
-            playSuccess();
-            Swal.fire(
-              'Payment Added',
-               desc,
-              'success'
+          inputPaymentAmount.value = '';
+          creditPaidAmount.innerHTML = parseInt(creditPaidAmount.innerHTML)+parseInt(paymentAmount);
+          creditRemainingAmount.innerHTML = parseInt(creditRemainingAmount.innerHTML)-parseInt(paymentAmount);
+          playSuccess();
+          Swal.fire(
+            'Payment Added',
+            desc,
+            'success'
             )
-            btnPayment.classList.remove('disabled');
-          }
-          else
-          {
-            makeToast('error',response.message);
-            btnPayment.classList.remove('disabled');
-          }
+          btnPayment.classList.remove('disabled');
         }
-      });
+        else
+        {
+          makeToast('error',response.message);
+          btnPayment.classList.remove('disabled');
+        }
+      }
+    });
     }
 
     function deleteSoldProduct(value)
@@ -1422,39 +2115,39 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       btnDelete.classList.add('disabled');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"product/sell/delete",
-        data: 
-        {  
-           'sellId' : value
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"product/sell/delete",
+       data: 
+       {  
+         'sellId' : value
+       },
+       success:function(response)
+       {
+
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-            playSuccess();
-            row.remove();
-            Toast.fire({
-                  icon: 'success',
-                  title: response.message
-              });
-            btnDelete.classList.remove('disabled');
-            sumColumn();
-          }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-            btnDelete.classList.remove('disabled');
-          }
+          playSuccess();
+          row.remove();
+          Toast.fire({
+            icon: 'success',
+            title: response.message
+          });
+          btnDelete.classList.remove('disabled');
+          sumColumn();
         }
-      });
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
+          btnDelete.classList.remove('disabled');
+        }
+      }
+    });
     }
 
     function deleteSellerSoldProduct(value)
@@ -1464,80 +2157,80 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       btnDelete.classList.add('disabled');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"seller/product/sell/delete",
-        data: 
-        {  
-           'sellId' : value
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"seller/product/sell/delete",
+       data: 
+       {  
+         'sellId' : value
+       },
+       success:function(response)
+       {
+
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-            playSuccess();
-            row.remove();
-            Toast.fire({
-                  icon: 'success',
-                  title: response.message
-              });
-            btnDelete.classList.remove('disabled');
-            sumColumn();
-          }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-            btnDelete.classList.remove('disabled');
-          }
+          playSuccess();
+          row.remove();
+          Toast.fire({
+            icon: 'success',
+            title: response.message
+          });
+          btnDelete.classList.remove('disabled');
+          sumColumn();
         }
-      });
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
+          btnDelete.classList.remove('disabled');
+        }
+      }
+    });
     }
 
     function alertDeleteSaleProduct(value)
     {
-          Swal.fire({
-          title: 'Are you sure?',
-          text: 'Are you sure want to delete this sale entry',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#3085d6',
-          confirmButtonText: 'Delete Entry'
-          }).then((result) => {
-          if (result.isConfirmed) 
-          {
-            deleteSoldProduct(value);
-          }
-          });
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Are you sure want to delete this sale entry',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Delete Entry'
+      }).then((result) => {
+        if (result.isConfirmed) 
+        {
+          deleteSoldProduct(value);
+        }
+      });
     }
 
     function alertDeleteSellerSaleProduct(value)
     {
-          Swal.fire({
-          title: 'Are you sure?',
-          text: 'Are you sure want to delete this sale entry',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#3085d6',
-          confirmButtonText: 'Delete Entry'
-          }).then((result) => {
-          if (result.isConfirmed) 
-          {
-            deleteSellerSoldProduct(value);
-          }
-          });
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Are you sure want to delete this sale entry',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Delete Entry'
+      }).then((result) => {
+        if (result.isConfirmed) 
+        {
+          deleteSellerSoldProduct(value);
+        }
+      });
     }
 
     function alertUpdateProduct()
     {
-        Swal.fire({
+      Swal.fire({
         title: 'Are you sure?',
         text: 'Are you sure want to update this product.',
         icon: 'info',
@@ -1545,7 +2238,7 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
         confirmButtonText: 'Update Product'
-        }).then((result) => {
+      }).then((result) => {
         if (result.isConfirmed) 
           updateProduct();
       });
@@ -1560,8 +2253,8 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-                  icon: 'error',
-                  title: "Enter Item Name"
+          icon: 'error',
+          title: "Enter Item Name"
         });
         return;
       }
@@ -1569,40 +2262,40 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-                  icon: 'error',
-                  title: "Item Name Too Short"
+          icon: 'error',
+          title: "Item Name Too Short"
         });
         return;
       }
       btnAddItem.classList.add('disabled');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"item/add",
-        data: 
-        {  
-           'itemName' : itemName.value,
-           'itemDescription' : itemDescription.value
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"item/add",
+       data: 
+       {  
+         'itemName' : itemName.value,
+         'itemDescription' : itemDescription.value
+       },
+       success:function(response)
+       {
+        if (!response.error)
         {
-          if (!response.error)
-          {
-            fetchItemAgain();
-            itemName.value = '';
-            itemDescription.value = '';
-            makeToast('success',response.message);
-            btnAddItem.classList.remove('disabled');
-          }
-          else
-          {
-            makeToast('error',response.message);
-            btnAddItem.classList.remove('disabled');
-          }
+          fetchItemAgain();
+          itemName.value = '';
+          itemDescription.value = '';
+          makeToast('success',response.message);
+          btnAddItem.classList.remove('disabled');
         }
-      });
+        else
+        {
+          makeToast('error',response.message);
+          btnAddItem.classList.remove('disabled');
+        }
+      }
+    });
     }
 
     function addBrand()
@@ -1613,8 +2306,8 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-                  icon: 'error',
-                  title: "Enter Brand Name"
+          icon: 'error',
+          title: "Enter Brand Name"
         });
         return;
       }
@@ -1622,45 +2315,45 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-                  icon: 'error',
-                  title: "Brand Name too short"
+          icon: 'error',
+          title: "Brand Name too short"
         });
         return;
       }
       btnAddBrand.classList.add('disabled');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"brand/add",
-        data: 
-        {  
-           'brandName' : brandName.value
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"brand/add",
+       data: 
+       {  
+         'brandName' : brandName.value
+       },
+       success:function(response)
+       {
+        if (!response.error)
         {
-          if (!response.error)
-          {
-            playSuccess();
-            brandName.value = '';
-            Toast.fire({
-                  icon: 'success',
-                  title: response.message
-              });
-            btnAddBrand.classList.remove('disabled');
-          }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-            btnAddBrand.classList.remove('disabled');
-          }
+          playSuccess();
+          brandName.value = '';
+          Toast.fire({
+            icon: 'success',
+            title: response.message
+          });
+          btnAddBrand.classList.remove('disabled');
         }
-      });
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
+          btnAddBrand.classList.remove('disabled');
+        }
+      }
+    });
     }
 
     let count = 1;
@@ -1668,50 +2361,50 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
     {
       // let brandName = document.getElementById('brandName');
       let SellRecordTableBody = document.getElementById('SellRecordTableBody');
-        if (value=='')
-        {
-            playError();
-            Toast.fire({
-                      icon: 'error',
-                      title: "Failed To Fetch Product Id"
-            });
-            return;
-        }
-        
+      if (value=='')
+      {
+        playError();
+        Toast.fire({
+          icon: 'error',
+          title: "Failed To Fetch Product Id"
+        });
+        return;
+      }
+
       // btnAddBrand.classList.add('disabled');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"product/sell",
-        data: 
-        {  
-           'productId' : value
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"product/sell",
+       data: 
+       {  
+         'productId' : value
+       },
+       success:function(response)
+       {
+
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-            playSuccess();
-            let product = response.product;
-            let tr = document.createElement('tr');
-            tr.id = 'rowId'+product.saleId;
-            let tdSr = '<td>'+count+'</td>';
-            let tdSId = '<td class="hide"><input type="text" id="saleId'+product.saleId+'" value="'+product.saleId+'" readonly="readonly"></td>';
-            let tdPName = '<td id="productName'+product.saleId+'">'+product.productName+'</td>';
-            let tdPSize = '<td>'+product.productSize+'</td>';
-            let tdPPrice = '<td id="productPrice'+product.saleId+'">'+product.productPrice+'</td>';
-            let tdPQuantity = '<td><input class="center" type="number" onkeyup="changePrice(this.value)" style="width:40px;" id="productQuantity'+product.saleId+'" value="1"></td>';
-            let tdAPQuantity = '<td class="hide" id="productAllQuantity'+product.saleId+'">'+product.productQuantity+'</td>';
-            let tdPTPrice = '<td Id="productTotalPrice'+product.saleId+'">'+product.productPrice+'</td>';
-            let tdPSellDiscount = '<td ><input class="center" type="number" onkeyup="discountInputEvent(this.value)" style="width:60px;" id="productDiscount'+product.saleId+'" value="0"></td>';
-            let tdPSellPrice = '<td><input type="number" onkeyup="priceEvent(this.value)" style="width:60px;" id="productSellPrice'+product.saleId+'" value="'+product.productPrice+'"></td>';
-            let tdPBrand = '<td>'+product.productBrand+'</td>';
-            let tdPAction = '<td><button style="border: 1px solid white;border-radius: 50%; display:none" onclick="updateSellRecord(this.value)" value="'+product.saleId+'" id="btnUpdate'+product.saleId+'" class="btn blue"><i class="material-icons white-text large">check_circle</i></button><button id="btnDelete'+product.saleId+'" value="'+product.saleId+'" onclick="alertDeleteSaleProduct(this.value)" style="border: 1px solid white;border-radius: 50%;" class="btn red"><i class="material-icons white-text">delete_forever</i></button></td>';
-            tr.innerHTML=tdSr+tdSId+tdPName+tdPSize+tdPPrice+tdPQuantity+tdAPQuantity+tdPTPrice+tdPSellDiscount+tdPSellPrice+tdPBrand+tdPAction;
-            SellRecordTableBody.appendChild(tr);
+          playSuccess();
+          let product = response.product;
+          let tr = document.createElement('tr');
+          tr.id = 'rowId'+product.saleId;
+          let tdSr = '<td>'+count+'</td>';
+          let tdSId = '<td class="hide"><input type="text" id="saleId'+product.saleId+'" value="'+product.saleId+'" readonly="readonly"></td>';
+          let tdPName = '<td id="productName'+product.saleId+'">'+product.productName+'</td>';
+          let tdPSize = '<td>'+product.productSize+'</td>';
+          let tdPPrice = '<td id="productPrice'+product.saleId+'">'+product.productPrice+'</td>';
+          let tdPQuantity = '<td><input class="center" type="number" onkeyup="changePrice(this.value)" style="width:40px;" id="productQuantity'+product.saleId+'" value="1"></td>';
+          let tdAPQuantity = '<td class="hide" id="productAllQuantity'+product.saleId+'">'+product.productQuantity+'</td>';
+          let tdPTPrice = '<td Id="productTotalPrice'+product.saleId+'">'+product.productPrice+'</td>';
+          let tdPSellDiscount = '<td ><input class="center" type="number" onkeyup="discountInputEvent(this.value)" style="width:60px;" id="productDiscount'+product.saleId+'" value="0"></td>';
+          let tdPSellPrice = '<td><input type="number" onkeyup="priceEvent(this.value)" style="width:60px;" id="productSellPrice'+product.saleId+'" value="'+product.productPrice+'"></td>';
+          let tdPBrand = '<td>'+product.productBrand+'</td>';
+          let tdPAction = '<td><button style="border: 1px solid white;border-radius: 50%; display:none" onclick="updateSellRecord(this.value)" value="'+product.saleId+'" id="btnUpdate'+product.saleId+'" class="btn blue"><i class="material-icons white-text large">check_circle</i></button><button id="btnDelete'+product.saleId+'" value="'+product.saleId+'" onclick="alertDeleteSaleProduct(this.value)" style="border: 1px solid white;border-radius: 50%;" class="btn red"><i class="material-icons white-text">delete_forever</i></button></td>';
+          tr.innerHTML=tdSr+tdSId+tdPName+tdPSize+tdPPrice+tdPQuantity+tdAPQuantity+tdPTPrice+tdPSellDiscount+tdPSellPrice+tdPBrand+tdPAction;
+          SellRecordTableBody.appendChild(tr);
             // Toast.fire({
             //       icon: 'success',
             //       title: response.message
@@ -1728,7 +2421,7 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
             });
             // btnAddBrand.classList.remove('disabled');
           }
-            sumColumn();
+          sumColumn();
 
         }
       });
@@ -1738,57 +2431,56 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
     {
       // let brandName = document.getElementById('brandName');
       let SellRecordTableBody = document.getElementById('SellRecordTableBody');
-        if (value=='')
-        {
-            playError();
-            Toast.fire({
-                      icon: 'error',
-                      title: "Failed To Fetch Product Id"
-            });
-            return;
-        }
-        
+      if (value=='')
+      {
+        playError();
+        Toast.fire({
+          icon: 'error',
+          title: "Failed To Fetch Product Id"
+        });
+        return;
+      }
+
       // btnAddBrand.classList.add('disabled');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"seller/product/sell",
-        data: 
-        {  
-           'productId' : value,
-           'invoiceNumber':invoiceNumber
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"seller/product/sell",
+       data: 
+       {  
+         'productId' : value,
+         'invoiceNumber':invoiceNumber
+       },
+       success:function(response)
+       {
+
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-            playSuccess();
-            let product = response.product;
-            let tr = document.createElement('tr');
-            tr.id = 'rowId'+product.saleId;
-            let tdSr = '<td>'+count+'</td>';
-            let tdSId = '<td class="hide"><input type="text" id="saleId'+product.saleId+'" value="'+product.saleId+'" readonly="readonly"></td>';
-            let tdPName = '<td id="productName'+product.saleId+'">'+product.productName+'</td>';
-            let tdPSize = '<td>'+product.productSize+'</td>';
-            let tdPPrice = '<td id="productPrice'+product.saleId+'">'+product.productPrice+'</td>';
-            let tdPQuantity = '<td><input class="center" type="number" onkeyup="changePrice(this.value)" style="width:40px;" id="productQuantity'+product.saleId+'" value="1"></td>';
-            let tdAPQuantity = '<td class="hide" id="productAllQuantity'+product.saleId+'">'+product.productQuantity+'</td>';
-            let tdPTPrice = '<td Id="productTotalPrice'+product.saleId+'">'+product.productPrice+'</td>';
-            let tdPSellDiscount = '<td><input class="center" type="number" onkeyup="discountInputEvent(this.value)" style="width:60px;" id="productDiscount'+product.saleId+'" value="0"></td>';
-            let tdPSellPrice = '<td><input type="number" onkeyup="priceEvent(this.value)" style="width:60px;" id="productSellPrice'+product.saleId+'" value="'+product.productPrice+'"></td>';
-            let tdPBrand = '<td>'+product.productBrand+'</td>';
-            let tdPAction = '<td><button style="border: 1px solid white;border-radius: 50%; display:none" onclick="updateSellerSellRecord(this.value)" value="'+product.saleId+'" id="btnUpdate'+product.saleId+'" class="btn blue"><i class="material-icons white-text large">check_circle</i></button><button id="btnDelete'+product.saleId+'" value="'+product.saleId+'" onclick="alertDeleteSellerSaleProduct(this.value)" style="border: 1px solid white;border-radius: 50%;" class="btn red"><i class="material-icons white-text">delete_forever</i></button></td>';
-            tr.innerHTML=tdSr+tdSId+tdPName+tdPSize+tdPPrice+tdPQuantity+tdAPQuantity+tdPTPrice+tdPSellDiscount+tdPSellPrice+tdPBrand+tdPAction;
-            SellRecordTableBody.appendChild(tr);
+          playSuccess();
+          let product = response.product;
+          let tr = document.createElement('tr');
+          tr.id = 'rowId'+product.saleId;
+          let tdSr = '<td>'+count+'</td>';
+          let tdSId = '<td class="hide"><input type="text" id="saleId'+product.saleId+'" value="'+product.saleId+'" readonly="readonly"></td>';
+          let tdPName = '<td id="productName'+product.saleId+'">'+product.productName+'</td>';
+          let tdPSize = '<td>'+product.productSize+'</td>';
+          let tdPPrice = '<td id="productPrice'+product.saleId+'">'+product.productPrice+'</td>';
+          let tdPQuantity = '<td><input class="center" type="number" onkeyup="changePrice(this.value)" style="width:40px;" id="productQuantity'+product.saleId+'" value="1"></td>';
+          let tdAPQuantity = '<td class="hide" id="productAllQuantity'+product.saleId+'">'+product.productQuantity+'</td>';
+          let tdPTPrice = '<td Id="productTotalPrice'+product.saleId+'">'+product.productPrice+'</td>';
+          let tdPSellDiscount = '<td><input class="center" type="number" onkeyup="discountInputEvent(this.value)" style="width:60px;" id="productDiscount'+product.saleId+'" value="0"></td>';
+          let tdPSellPrice = '<td><input type="number" onkeyup="priceEvent(this.value)" style="width:60px;" id="productSellPrice'+product.saleId+'" value="'+product.productPrice+'"></td>';
+          let tdPBrand = '<td>'+product.productBrand+'</td>';
+          let tdPAction = '<td><button style="border: 1px solid white;border-radius: 50%; display:none" onclick="updateSellerSellRecord(this.value)" value="'+product.saleId+'" id="btnUpdate'+product.saleId+'" class="btn blue"><i class="material-icons white-text large">check_circle</i></button><button id="btnDelete'+product.saleId+'" value="'+product.saleId+'" onclick="alertDeleteSellerSaleProduct(this.value)" style="border: 1px solid white;border-radius: 50%;" class="btn red"><i class="material-icons white-text">delete_forever</i></button></td>';
+          tr.innerHTML=tdSr+tdSId+tdPName+tdPSize+tdPPrice+tdPQuantity+tdAPQuantity+tdPTPrice+tdPSellDiscount+tdPSellPrice+tdPBrand+tdPAction;
+          SellRecordTableBody.appendChild(tr);
             // Toast.fire({
             //       icon: 'success',
             //       title: response.message
             //   });
             // btnAddBrand.classList.remove('disabled');
-            console.log('sellToSeller Function Called');
             count++;
           }
           else
@@ -1820,61 +2512,61 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-            icon: 'error',
-            title: 'Product Quantity Is Low'
+          icon: 'error',
+          title: 'Product Quantity Is Low'
         });
         return;
       }
       btnUpdate.classList.add('disabled');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"product/sell/update",
-        data:{
-          'saleId':value,
-          'productQuantity':quantity,
-          'productSellDiscount':discount,
-          'productSellPrice':price
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"product/sell/update",
+       data:{
+        'saleId':value,
+        'productQuantity':quantity,
+        'productSellDiscount':discount,
+        'productSellPrice':price
+      },
+      success:function(response)
+      {
+        btnUpdate.classList.remove('disabled');
+        
+        if (!response.error)
         {
-          btnUpdate.classList.remove('disabled');
-          console.log(response);
-          if (!response.error)
+          btnUpdate.style.display = 'none';
+          playSuccess(); 
+          Toast.fire({
+            icon: 'success',
+            title: response.message
+          });
+        }
+        else
+        {
+          playError();
+          if (new String(response.message).valueOf() == new String("Product Not Available").valueOf())
           {
-            btnUpdate.style.display = 'none';
-            playSuccess(); 
-            Toast.fire({
-              icon: 'success',
-              title: response.message
+            let productAC = parseInt(productAllQuantity.innerText)+1;
+            let text = "<b>The Available Quantity Of <span class='blue-text'>"+productName.innerText+"</span> Is <h4 style='font-weight:bold; color:red'>"+productAC+"</h4>Please Decrease The Quantity.</b>";
+            Swal.fire({
+              icon: 'warning',
+              title: response.message,
+              html: text
             });
           }
           else
           {
-            playError();
-            if (new String(response.message).valueOf() == new String("Product Not Available").valueOf())
-            {
-              let productAC = parseInt(productAllQuantity.innerText)+1;
-                let text = "<b>The Available Quantity Of <span class='blue-text'>"+productName.innerText+"</span> Is <h4 style='font-weight:bold; color:red'>"+productAC+"</h4>Please Decrease The Quantity.</b>";
-                Swal.fire({
-                icon: 'warning',
-                title: response.message,
-                html: text
-              });
-            }
-            else
-            {
-              playWarning();
-              Toast.fire({
-                icon: 'error',
-                title: response.message
-              });
-            }
+            playWarning();
+            Toast.fire({
+              icon: 'error',
+              title: response.message
+            });
           }
         }
-      });
+      }
+    });
     }
 
     function updateSellerSellRecord(value)
@@ -1892,61 +2584,61 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-            icon: 'error',
-            title: 'Product Quantity Is Low'
+          icon: 'error',
+          title: 'Product Quantity Is Low'
         });
         return;
       }
       btnUpdate.classList.add('disabled');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"seller/product/sell/update",
-        data:{
-          'saleId':value,
-          'productQuantity':quantity,
-          'productSellPrice':price,
-          'sellDiscount':discount,
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"seller/product/sell/update",
+       data:{
+        'saleId':value,
+        'productQuantity':quantity,
+        'productSellPrice':price,
+        'sellDiscount':discount,
+      },
+      success:function(response)
+      {
+        btnUpdate.classList.remove('disabled');
+        
+        if (!response.error)
         {
-          btnUpdate.classList.remove('disabled');
-          console.log(response);
-          if (!response.error)
+          btnUpdate.style.display = 'none';
+          playSuccess(); 
+          Toast.fire({
+            icon: 'success',
+            title: response.message
+          });
+        }
+        else
+        {
+          playError();
+          if (new String(response.message).valueOf() == new String("Product Not Available").valueOf())
           {
-            btnUpdate.style.display = 'none';
-            playSuccess(); 
-            Toast.fire({
-              icon: 'success',
-              title: response.message
+            let productAC = parseInt(productAllQuantity.innerText)+1;
+            let text = "<b>The Available Quantity Of <span class='blue-text'>"+productName.innerText+"</span> Is <h4 style='font-weight:bold; color:red'>"+productAC+"</h4>Please Decrease The Quantity.</b>";
+            Swal.fire({
+              icon: 'warning',
+              title: response.message,
+              html: text
             });
           }
           else
           {
-            playError();
-            if (new String(response.message).valueOf() == new String("Product Not Available").valueOf())
-            {
-              let productAC = parseInt(productAllQuantity.innerText)+1;
-                let text = "<b>The Available Quantity Of <span class='blue-text'>"+productName.innerText+"</span> Is <h4 style='font-weight:bold; color:red'>"+productAC+"</h4>Please Decrease The Quantity.</b>";
-                Swal.fire({
-                icon: 'warning',
-                title: response.message,
-                html: text
-              });
-            }
-            else
-            {
-              playWarning();
-              Toast.fire({
-                icon: 'error',
-                title: response.message
-              });
-            }
+            playWarning();
+            Toast.fire({
+              icon: 'error',
+              title: response.message
+            });
           }
         }
-      });
+      }
+    });
     }
 
     //calling this function on change quantity
@@ -1971,14 +2663,13 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       productTotalPrice.innerHTML = fPrice;
       productSellPrice.value = percentageDec(fPrice,inputProductDiscount.value);
       sumColumn();
-      console.log('changePrice Function Called');
+
     }
 
     //calling this function on change percentage input
     function discountInputEvent(value)
     {
       let sellId = $(event.target)[0].id.replace('productDiscount','');
-      console.log(sellId+' This is sell id')
       let inputProductTotalPrice = document.getElementById('productTotalPrice'+sellId);
       let inputProductSellPrice = document.getElementById('productSellPrice'+sellId);
       let inputProductDiscount = document.getElementById('productDiscount'+sellId);
@@ -1997,9 +2688,8 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       let inputProductSellPrice = document.getElementById('productSellPrice'+sellId);
       let inputProductDiscount = document.getElementById('productDiscount'+sellId);
       let btnUpdateProduct = document.getElementById('btnUpdate'+sellId);
-      console.log(inputProductSellPrice.value);
       if (endPathname=='selltoseller' || endPathname=='sell')
-          inputProductDiscount.value = percentage(inputProductSellPrice.value,inputProductTotalPrice.innerText);
+        inputProductDiscount.value = percentage(inputProductSellPrice.value,inputProductTotalPrice.innerText);
       btnUpdateProduct.style.display = 'block';
       sumColumn();
     }
@@ -2007,7 +2697,6 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
     function btnUpdateShow()
     {
       let sellId = $(event.target)[0].id.replace('productDiscount','');
-      console.log('This is is the sell id from btnUpdateShow '+sellId);
       let btnUpdateProduct = document.getElementById('btnUpdate'+sellId);
       btnUpdateProduct.style.display = 'block';
     }
@@ -2022,7 +2711,6 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
     function percentage(partialValue, totalValue)
     {
       let per = (100 * partialValue) / totalValue;
-      console.log('percentage Function Called');
       return parseInt(100-per);
     } 
 
@@ -2030,7 +2718,6 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
     {
       let htmlTotalPrice = document.getElementById('htmlTotalPrice');
       let htmlDiscountPrice = document.getElementById('htmlDiscountPrice');
-      console.log('percentageDec Function Called');
       return (totalValue - ((per /100) * totalValue));
     }
 
@@ -2053,8 +2740,6 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       for(let i = 1; i < table.rows.length; i++)
       {
         let tbl = table.rows[i].cells[9];
-        console.log(tbl)
-        console.log(tbl.firstChild.value)
         if (tbl.children.length>0)
           sellTotal = sellTotal + parseInt(tbl.firstChild.value);
         else
@@ -2074,10 +2759,10 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
         denyButtonText: `No`,
         html: text
       }).then((result) => {
-      if (result.isConfirmed) 
-      {
-        cancelCreatedInvoice();
-      }
+        if (result.isConfirmed) 
+        {
+          cancelCreatedInvoice();
+        }
       });
     }
 
@@ -2095,22 +2780,22 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       let SellRecordTableBody = document.getElementById('SellRecordTableBody');
       let invoiceNumber = inputInvoiceNumber.value;
       btnRemSeller.classList.add('disabled');
-     
-       $.ajax({
+
+      $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"invoice/delete",
-        data:{
-          'invoiceNumber' : invoiceNumber
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"invoice/delete",
+       data:{
+        'invoiceNumber' : invoiceNumber
+      },
+      success:function(response)
+      {
+
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-            makeToast('success',response.message);
+          makeToast('success',response.message);
             // location.reload();
             inputInvoiceNumber.value = '';
             viewSellerName.innerHTML = '';
@@ -2161,11 +2846,11 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
         inputOpenModal.removeAttribute('disabled');
       }
       else
-        {
-          Swal.fire('Please Select A Seller.');
-          playError();
-          btnSetSeller.classList.remove('disabled');
-        }
+      {
+        Swal.fire('Please Select A Seller.');
+        playError();
+        btnSetSeller.classList.remove('disabled');
+      }
     }
 
     function openModalAlert()
@@ -2186,161 +2871,197 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       let inputInvoiceNumber = document.getElementById('inputInvoiceNumber');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"/invoice/add",
-        data:{
-          'sellerId':sellerId
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"/invoice/add",
+       data:{
+        'sellerId':sellerId
+      },
+      success:function(response)
+      {
+
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-              inputInvoiceNumber.value = response.invoice.invoiceNumber;
-          }
-          else
-            makeToast('error',response.message);
+          inputInvoiceNumber.value = response.invoice.invoiceNumber;
         }
-      });
+        else
+          makeToast('error',response.message);
+      }
+    });
     }
 
     function getSellers()
     {
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"get",
-        url:BASE_URL+"sellers",
-        success:function(response)
+         'token':token
+       },
+       type:"get",
+       url:BASE_URL+"sellers",
+       success:function(response)
+       {
+
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-            let sellers = response.sellers;
-            let sellerImage;
-            sellers.forEach(setCategory);
-            function setCategory(item, index) {
-              console.log(item);
-              if (item.sellerImage!=null)
-              {
-                  sellerImage = item.sellerImage;
-              }
-              else
-              {
-             sellerImage = 'src/img/user.png'; 
-              }
-              $('#selectSeller').select2().append($('<option value="'+item.sellerId+'" data-icon="'+sellerImage+'" data-address="'+item.sellerAddress+'" data-contact="'+item.sellerContactNumber+'">'+item.sellerName+'</option>'));
-              $('select').select2({width: "100%"});
+          let sellers = response.sellers;
+          let sellerImage;
+          sellers.forEach(setCategory);
+          function setCategory(item, index) {
+            if (item.sellerImage!=null)
+            {
+              sellerImage = item.sellerImage;
             }
-          }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-          }
+            else
+            {
+             sellerImage = 'src/img/user.png'; 
+           }
+           $('#selectSeller').select2().append($('<option value="'+item.sellerId+'" data-icon="'+sellerImage+'" data-address="'+item.sellerAddress+'" data-contact="'+item.sellerContactNumber+'">'+item.sellerName+'</option>'));
+           $('select').select2({width: "100%"});
+         }
+       }
+       else
+       {
+        playWarning();
+        Toast.fire({
+          icon: 'error',
+          title: response.message
+        });
+      }
+    }
+  });
+    }
+
+    function getAllCounts()
+    {
+      let c = 0;
+      let countsInterval = setInterval(function(){
+        $('#productsCount').html(c);
+        $('#salesCount').html(c);
+        $('#brandsCount').html(c);
+        $('#noticesCount').html(c);
+        $('#expiringsCount').html(c);
+        $('#expiredsCount').html(c);
+        c++;
+      }, 1);
+      fetch(`${BASE_URL}/counts`,{
+        headers:{
+          token:token
+        }
+      })
+      .then(response=>response.json())
+      .then(response=>
+      {
+        if(!response.error)
+        {
+          let count = response.counts;
+          $('#productsCount').html(count.productsAvailableCount);
+          $('#salesCount').html(count.salesCount);
+          $('#brandsCount').html(count.brandsCount);
+          $('#noticesCount').html(count.productsNoticeCount);
+          $('#expiringsCount').html(count.productsExpiringCount);
+          $('#expiredsCount').html(count.productsExpiredCount);
+          clearInterval(countsInterval);
         }
       });
     }
 
     function getBrands()
     {
-      $.ajax({
-        headers:{  
-           'token':token
-        },
-        type:"get",
-        url:BASE_URL+"brands",
-        success:function(response)
+      $('#selectBrand').attr('disabled','disabled');
+      fetch(BASE_URL+"brands",{
+        headers:{
+          'token':token
+        }
+      })
+      .then(response=> response.json())
+      .then(response=>{
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-            let brands = response.brands;
-            brands.forEach(setCategory);
-            function setCategory(item, index) {
-              $('#selectBrand').select2().append($('<option value="'+item.brandId+'">'+item.brandName+'</option>'));
-              $('select').select2({width: "100%"});
-
-            }
+          $('#selectBrand').removeAttr('disabled');
+          let brands = response.brands;
+          brands.forEach(setCategory);
+          function setCategory(item, index) {
+            $('#selectBrand').select2().append($('<option value="'+item.brandId+'">'+item.brandName+'</option>'));
+            $('select').select2({width: "100%"});
           }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-          }
+          if(endPathname=='editproduct')
+            setCategoryKar('selectBrand',mBrand);
+        }
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
         }
       });
     }
 
     function getItems()
     {
-      $.ajax({
-        headers:{  
-           'token':token
-        },
-        type:"get",
-        url:BASE_URL+"items",
-        success:function(response)
+      $('#selectItem').attr('disabled','disabled');
+      fetch(BASE_URL+"items",{
+        headers:{
+          'token':token
+        }
+      })
+      .then(response=> response.json())
+      .then(response=>{
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-            let items = response.items;
-            items.forEach(setCategory);
-            function setCategory(item, index) {
-              $('#selectItem').select2().append($('<option value="'+item.itemId+'">'+item.itemName+'</option>'));
-              $('select').select2({width: "100%"});
-            }
+          $('#selectItem').removeAttr('disabled');
+          let items = response.items;
+          items.forEach(setCategory);
+          function setCategory(item, index) {
+            $('#selectItem').select2().append($('<option value="'+item.itemId+'">'+item.itemName+'</option>'));
+            $('select').select2({width: "100%"});
           }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-          }
+
+          if(endPathname=='editproduct')
+            setCategoryKar('selectItem',mName);
+        }
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
         }
       });
     }
 
     function getSizes()
     {
-      $.ajax({
-        headers:{  
-           'token':token
-        },
-        type:"get",
-        url:BASE_URL+"sizes",
-        success:function(response)
+      $('#selectSize').attr('disabled','disabled');
+      fetch(BASE_URL+"sizes",{
+        headers:{
+          'token':token
+        }
+      })
+      .then(response=> response.json())
+      .then(response=>{
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-            let sizes = response.sizes;
-            sizes.forEach(setCategory);
-            function setCategory(item, index) {
-              $('#selectSize').select2().append($('<option value="'+item.sizeId+'">'+item.sizeName+'</option>'));
-              $('select').select2({width: "100%"});
-            }
+          $('#selectSize').removeAttr('disabled');
+          let sizes = response.sizes;
+          sizes.forEach(setCategory);
+          function setCategory(item, index) {
+            $('#selectSize').select2().append($('<option value="'+item.sizeId+'">'+item.sizeName+'</option>'));
+            $('select').select2({width: "100%"});
           }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-          }
+          if(endPathname=='editproduct')
+            setCategoryKar('selectSize',mSize);
+        }
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
         }
       });
     }
@@ -2348,65 +3069,67 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
     function getCategories()
     {
       let select = document.getElementById('selectCategory');
-
-      $.ajax({
-        headers:{  
-           'token':token
-        },
-        type:"get",
-        url:BASE_URL+"categories",
-        success:function(response)
+      selectCategory.setAttribute('disabled','disabled');
+      fetch(BASE_URL+"categories",{
+        headers:{
+          'token':token
+        }
+      })
+      .then(response => response.json())
+      .then(response=>{
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-            let categories = response.categories;
-            categories.forEach(setCategory);
-            function setCategory(item, index) {
-              $('#selectCategory').select2().append($('<option value="'+item.categoryId+'">'+item.categoryName+'</option>'));
-              $('select').select2({width: "100%"});
-            }
+          selectCategory.removeAttribute('disabled');
+
+          let categories = response.categories;
+          categories.forEach(setCategory);
+          function setCategory(item, index) {
+            $('#selectCategory').select2().append($('<option value="'+item.categoryId+'">'+item.categoryName+'</option>'));
+            $('select').select2({width: "100%"});
           }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-          }
+          if(endPathname=='editproduct')
+            setCategoryKar('selectCategory',mCategory);
+        }
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
         }
       });
     }
 
     function getLocations()
     {
-      $.ajax({
-        headers:{  
-           'token':token
-        },
-        type:"get",
-        url:BASE_URL+"locations",
-        success:function(response)
+      $('#selectLocation').attr('disabled','disabled');
+      fetch(BASE_URL+"locations",{
+        headers:{
+          'token':token
+        }
+      })
+      .then(response=> response.json())
+      .then(response=>{
+        $('#selectLocation').removeAttr('disabled');
+        if (!response.error)
         {
-          console.log(response);
-          if (!response.error)
-          {
-            let locations = response.locations;
-            locations.forEach(setCategory);
-            function setCategory(item, index) {
-              $('#selectLocation').select2().append($('<option value="'+item.locationId+'">'+item.locationName+'</option>'));
-              $('select').select2({width: "100%"});
-            }
+          let locations = response.locations;
+          locations.forEach(setCategory);
+          function setCategory(item, index) {
+            $('#selectLocation').select2().append($('<option value="'+item.locationId+'">'+item.locationName+'</option>'));
+            $('select').select2({width: "100%"});
           }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-          }
+          if(endPathname=='editproduct')
+            setCategoryKar('selectLocation',mLocation);
+        }
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
         }
       });
     }
@@ -2418,31 +3141,30 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       let select = document.getElementById('selectLocation');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"get",
-        url:BASE_URL+"products",
-        success:function(response)
+         'token':token
+       },
+       type:"get",
+       url:BASE_URL+"products",
+       success:function(response)
+       {
+
+        if(!response.error)
         {
-          console.log(response);
-          if(!response.error)
-          {
-            products = response.products;
-            console.log(products);
+          products = response.products;
           $('#productTable').DataTable( {
-              data: response
+            data: response
           } );
-          }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-          }
         }
-      });
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
+        }
+      }
+    });
     }
 
     function sendItem(value)
@@ -2457,25 +3179,25 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-                  icon: 'error',
-                  title: "Enter Product Notice Count"
+          icon: 'error',
+          title: "Enter Product Notice Count"
         });
         return;
       }
       let text = "<b>Are you  sure want to set product notice count to  <h4 style='font-weight:bold; color:red'>"+productNoticeCount.value+"</h4> </b>";
-          Swal.fire({
-            icon: 'warning',
-            title: 'Are you sure?',
-            showCancelButton: true,
-            confirmButtonText: `Update`,
-            denyButtonText: `Cancel`,
-            html: text
-          }).then((result) => {
-          if (result.isConfirmed) 
-          {
-            updateProductNoticeCount(productNoticeCount);
-          }
-          });
+      Swal.fire({
+        icon: 'warning',
+        title: 'Are you sure?',
+        showCancelButton: true,
+        confirmButtonText: `Update`,
+        denyButtonText: `Cancel`,
+        html: text
+      }).then((result) => {
+        if (result.isConfirmed) 
+        {
+          updateProductNoticeCount(productNoticeCount);
+        }
+      });
     }
 
     function updateProductNoticeCount(productNoticeCount)
@@ -2484,63 +3206,63 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       btnUpdateProductNoticeCount.classList.add('disabled');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"product/notice/count/update",
-        data: 
-        {  
-           'productNoticeCount' : productNoticeCount.value
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"product/notice/count/update",
+       data: 
+       {  
+         'productNoticeCount' : productNoticeCount.value
+       },
+       success:function(response)
+       {
+        if (!response.error)
         {
-          if (!response.error)
-          {
-            playSuccess();
-            Toast.fire({
-                  icon: 'success',
-                  title: response.message
-              });
-            productNoticeCount.value = '';
-            btnUpdateProductNoticeCount.classList.remove('disabled');
-          }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-            btnUpdateProductNoticeCount.classList.remove('disabled');
-          }
+          playSuccess();
+          Toast.fire({
+            icon: 'success',
+            title: response.message
+          });
+          productNoticeCount.value = '';
+          btnUpdateProductNoticeCount.classList.remove('disabled');
         }
-      });
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
+          btnUpdateProductNoticeCount.classList.remove('disabled');
+        }
+      }
+    });
     }
 
     function updateFirebaseWebToken(webToken)
     {
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"firebaseToken/update/web",
-        data: 
-        {  
-           'webToken' : webToken
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"firebaseToken/update/web",
+       data: 
+       {  
+         'webToken' : webToken
+       },
+       success:function(response)
+       {
+        if (response.error)
         {
-          if (response.error)
-          {
-            playError();
-            Toast.fire({
-                  icon: 'error',
-                  title: response.message
-              });
-          }
+          playError();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
         }
-      });
+      }
+    });
     }
 
     function addSize()
@@ -2551,8 +3273,8 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-                  icon: 'error',
-                  title: "Enter Size Name"
+          icon: 'error',
+          title: "Enter Size Name"
         });
         return;
       }
@@ -2560,45 +3282,45 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-                  icon: 'error',
-                  title: "Size Name too short"
+          icon: 'error',
+          title: "Size Name too short"
         });
         return;
       }
       btnAddSize.classList.add('disabled');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"size/add",
-        data: 
-        {  
-           'sizeName' : sizeName.value
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"size/add",
+       data: 
+       {  
+         'sizeName' : sizeName.value
+       },
+       success:function(response)
+       {
+        if (!response.error)
         {
-          if (!response.error)
-          {
-            playSuccess();
-            Toast.fire({
-                  icon: 'success',
-                  title: response.message
-              });
-            sizeName.value = '';
-            btnAddSize.classList.remove('disabled');
-          }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-            btnAddSize.classList.remove('disabled');
-          }
+          playSuccess();
+          Toast.fire({
+            icon: 'success',
+            title: response.message
+          });
+          sizeName.value = '';
+          btnAddSize.classList.remove('disabled');
         }
-      });
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
+          btnAddSize.classList.remove('disabled');
+        }
+      }
+    });
     }
 
     function addAdmin()
@@ -2609,8 +3331,8 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-                  icon: 'error',
-                  title: "Enter Category Name"
+          icon: 'error',
+          title: "Enter Category Name"
         });
         return;
       }
@@ -2618,128 +3340,128 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-                  icon: 'error',
-                  title: "Category Name too short"
+          icon: 'error',
+          title: "Category Name too short"
         });
         return;
       }
       btnAddCategory.classList.add('disabled');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"admin/add",
-        data: 
-        {  
-           'categoryName' : categoryName.value
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"admin/add",
+       data: 
+       {  
+         'categoryName' : categoryName.value
+       },
+       success:function(response)
+       {
+        if (!response.error)
         {
-          if (!response.error)
-          {
-            playSuccess();
-            Toast.fire({
-                  icon: 'success',
-                  title: response.message
-              });
-            categoryName.value = '';
-            btnAddCategory.classList.remove('disabled');
-          }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-            btnAddCategory.classList.remove('disabled');
-          }
+          playSuccess();
+          Toast.fire({
+            icon: 'success',
+            title: response.message
+          });
+          categoryName.value = '';
+          btnAddCategory.classList.remove('disabled');
         }
-      });
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
+          btnAddCategory.classList.remove('disabled');
+        }
+      }
+    });
     }
 
     $("form#formAddAdmin").submit(function(e) {
-    e.preventDefault();    
-    var formData = new FormData(this);
-    let userPassword;
-    if (formData.get("adminName")=='')
-    {
+      e.preventDefault();    
+      var formData = new FormData(this);
+      let userPassword;
+      if (formData.get("adminName")=='')
+      {
         makeToast('error',"Enter Name");
         return;
-    }
-    if (formData.get("adminName").length<3)
-    {
+      }
+      if (formData.get("adminName").length<3)
+      {
         makeToast('error',"Name too Short");
         return;
-    }
-    if (formData.get("adminName").length>30)
-    {
+      }
+      if (formData.get("adminName").length>30)
+      {
         makeToast('error',"Name too Long");
         return;
-    }
-    if (formData.get("adminEmail")=='')
-    {
+      }
+      if (formData.get("adminEmail")=='')
+      {
         makeToast('error',"Enter Email");
         return;
-    }
-    if (formData.get("adminEmail")<10 || formData.get("adminEmail")>40)
-    {
+      }
+      if (formData.get("adminEmail")<10 || formData.get("adminEmail")>40)
+      {
         makeToast('error',"Enter Valid Email");
         return;
-    }
-    if (formData.get("adminPassword")=='')
-    {
+      }
+      if (formData.get("adminPassword")=='')
+      {
         makeToast('error',"Enter Password");
         return;
-    }
-    if (formData.get("adminPassword").length<7)
-    {
+      }
+      if (formData.get("adminPassword").length<7)
+      {
         makeToast('error',"Password too Short");
         return;
-    }
-    if (formData.get("adminPosition")=='' || formData.get("adminPosition")==null)
-    {
+      }
+      if (formData.get("adminPosition")=='' || formData.get("adminPosition")==null)
+      {
         makeToast('error',"Select admin Position");
         return;
-    }
-    if (userPassword==null || userPassword=='') 
-    {
-      Swal.fire({
-        title: 'Enter Your Current Passowrd',
-        input: 'password',
-        inputAttributes: {
-          autocapitalize: 'off'
-        },
-        showCancelButton: true,
-        confirmButtonText: 'Add Admin'
-      })
-      .then((result) => {
+      }
+      if (userPassword==null || userPassword=='') 
+      {
+        Swal.fire({
+          title: 'Enter Your Current Passowrd',
+          input: 'password',
+          inputAttributes: {
+            autocapitalize: 'off'
+          },
+          showCancelButton: true,
+          confirmButtonText: 'Add Admin'
+        })
+        .then((result) => {
           if (result.isConfirmed) 
           {
             formData.append('currentAdminPassword',result.value);
 
             $.ajax({
-                  headers:{  
-                     'token':token
-                  },
-                  url: BASE_URL+"admin/add",
-                  type: 'POST',
-                  data: formData,
-                  success: function (response) {
-                    if (response.error)
-                      makeToast('error',response.message);
-                    else
-                      makeToast('success',response.message);
-                  },
-                  cache: false,
-                  contentType: false,
-                  processData: false
-              });
+              headers:{  
+               'token':token
+             },
+             url: BASE_URL+"admin/add",
+             type: 'POST',
+             data: formData,
+             success: function (response) {
+              if (response.error)
+                makeToast('error',response.message);
+              else
+                makeToast('success',response.message);
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+          });
 
           }
-          });
-    };
+        });
+      };
     });
 
     function addCategory()
@@ -2750,8 +3472,8 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-                  icon: 'error',
-                  title: "Enter Category Name"
+          icon: 'error',
+          title: "Enter Category Name"
         });
         return;
       }
@@ -2759,45 +3481,45 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-                  icon: 'error',
-                  title: "Category Name too short"
+          icon: 'error',
+          title: "Category Name too short"
         });
         return;
       }
       btnAddCategory.classList.add('disabled');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"category/add",
-        data: 
-        {  
-           'categoryName' : categoryName.value
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"category/add",
+       data: 
+       {  
+         'categoryName' : categoryName.value
+       },
+       success:function(response)
+       {
+        if (!response.error)
         {
-          if (!response.error)
-          {
-            playSuccess();
-            Toast.fire({
-                  icon: 'success',
-                  title: response.message
-              });
-            categoryName.value = '';
-            btnAddCategory.classList.remove('disabled');
-          }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-            btnAddCategory.classList.remove('disabled');
-          }
+          playSuccess();
+          Toast.fire({
+            icon: 'success',
+            title: response.message
+          });
+          categoryName.value = '';
+          btnAddCategory.classList.remove('disabled');
         }
-      });
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
+          btnAddCategory.classList.remove('disabled');
+        }
+      }
+    });
     }
 
     function addLocation()
@@ -2808,8 +3530,8 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-                  icon: 'error',
-                  title: "Enter Location Name"
+          icon: 'error',
+          title: "Enter Location Name"
         });
         return;
       }
@@ -2817,43 +3539,43 @@ JSON.stringifyIfObject = function stringifyIfObject(obj){
       {
         playWarning();
         Toast.fire({
-                  icon: 'error',
-                  title: "Location Name too short"
+          icon: 'error',
+          title: "Location Name too short"
         });
         return;
       }
       btnAddLocation.classList.add('disabled');
       $.ajax({
         headers:{  
-           'token':token
-        },
-        type:"post",
-        url:BASE_URL+"location/add",
-        data: 
-        {  
-           'locationName' : locationName.value
-        },
-        success:function(response)
+         'token':token
+       },
+       type:"post",
+       url:BASE_URL+"location/add",
+       data: 
+       {  
+         'locationName' : locationName.value
+       },
+       success:function(response)
+       {
+        if (!response.error)
         {
-          if (!response.error)
-          {
-            playSuccess();
-            Toast.fire({
-                  icon: 'success',
-                  title: response.message
-              });
-            locationName.value = '';
-            btnAddLocation.classList.remove('disabled');
-          }
-          else
-          {
-            playWarning();
-            Toast.fire({
-              icon: 'error',
-              title: response.message
-            });
-            btnAddLocation.classList.remove('disabled');
-          }
+          playSuccess();
+          Toast.fire({
+            icon: 'success',
+            title: response.message
+          });
+          locationName.value = '';
+          btnAddLocation.classList.remove('disabled');
         }
-      });
+        else
+        {
+          playWarning();
+          Toast.fire({
+            icon: 'error',
+            title: response.message
+          });
+          btnAddLocation.classList.remove('disabled');
+        }
+      }
+    });
     }

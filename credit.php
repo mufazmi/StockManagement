@@ -73,7 +73,7 @@
                               <th>Expire</th>
                           </tr>
                         </thead>
-                        <tbody style="font-family: holo">
+                        <tbody>
                           <tr>
                             <?php
                             $count = 1;

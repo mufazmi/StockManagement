@@ -12,3 +12,18 @@
   white-space: nowrap;
   z-index: 1;
 }
+
+.rowColor{
+  background-color: #f3f1f1;
+}
+
+.bold{
+  font-weight: bold;
+}
+
+.modelPDF{
+  width: 685px !important;
+  min-height: 740px !important;
+  padding-top: 0px !important;
+  margin-top: -65px !important;
+}

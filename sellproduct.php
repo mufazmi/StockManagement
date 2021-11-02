@@ -1,11 +1,11 @@
 <?php 
-	require_once dirname(__FILE__).'/include/header.php';
-	require_once dirname(__FILE__).'/include/api.php';
-	require_once dirname(__FILE__).'/include/navbar.php';
+  require_once dirname(__FILE__).'/include/header.php';
+  require_once dirname(__FILE__).'/include/api.php';
+  require_once dirname(__FILE__).'/include/navbar.php';
 
-	$api = new API;
+  $api = new API;
 
-	$response = $api->getAvailableProducts();
+  $response = $api->getAvailableProducts();
 ?>
 <style type="text/css">
 tr.normal td {
@@ -25,17 +25,17 @@ tr.highlighted td {
 
     <div class="socialcodia">
         <div class="row">
-        	<div class="card z-depth-0" style="margin: 10px">
-		        <div class="card-content">
-		            <div class="input-field">
-		                <input type="text" autofocus id="inputOpenModal" onkeyup="openModalTextController()" placeholder="">
-		                <label for="productName">Enter Product Name</label>
-		            </div>
-		        </div>
-		      </div>
-  		    <div class="card z-depth-0 blue lighten-3" style="margin: 10px; min-height: 390px;">
-  	        <div class="card-content">
-  	            <table id="productTable" class="highlight responsive-table ">
+          <div class="card z-depth-0" style="margin: 10px">
+            <div class="card-content">
+                <div class="input-field">
+                    <input type="text" autofocus id="inputOpenModal" onkeyup="openModalTextController()" placeholder="">
+                    <label for="productName">Enter Product Name</label>
+                </div>
+            </div>
+          </div>
+          <div class="card z-depth-0 blue lighten-3" style="margin: 10px; min-height: 390px;">
+            <div class="card-content">
+                <table id="productTable" class="highlight responsive-table ">
                   <thead>
                     <tr>
                         <th>Sr No</th>
@@ -51,10 +51,10 @@ tr.highlighted td {
                     </tr>
                   </thead>
                   <tbody id="SellRecordTableBody" style="font-weight: bold;">
-  				        </tbody>
+                  </tbody>
                 </table>
-  	        </div>
-  		    </div>
+            </div>
+          </div>
           <div class="card z-depth-0 blue lighten-3" style="margin: 10px;">
             <div class="card-content">
               <div class="row">
@@ -70,28 +70,28 @@ tr.highlighted td {
         </div>
 
         <div id="modal1" class="modal modal-fixed-footer">
-		      <div class="modal-content">
-  		    	<div class="input-field">
+          <div class="modal-content">
+            <div class="input-field">
                 <input type="text" name="productName" id="productName" autocomplete="off" placeholder="" onkeyup="filterProduct()">
                 <label for="productName">Enter Product Name</label>
             </div>
-  		    	<div id="results" class="scrollingdatagrid">	
-    			    <table id="mstrTable" tabindex="0" class="display" cellspacing="0" width="100%">
-    				    <thead>
-    				      <tr>
-    			              <th>SR. NO</th>
-    			              <th>CATEGORY</th>
-    			              <th>NAME</th>
-    			              <th>SIZE</th>
-    			              <th>PRICE</th>
-    			              <th>QUAN</th>
-    			              <th>LOC</th>
-    			              <th>BRAND</th>
-    			              <th>MAN</th>
-    			              <th>EXP</th>
-    				      </tr>
-    				    </thead>
-    				    <tbody>
+            <div id="results" class="scrollingdatagrid">  
+              <table id="mstrTable" tabindex="0" class="display" cellspacing="0" width="100%">
+                <thead>
+                  <tr>
+                        <th>SR. NO</th>
+                        <th>CATEGORY</th>
+                        <th>NAME</th>
+                        <th>SIZE</th>
+                        <th>PRICE</th>
+                        <th>QUAN</th>
+                        <th>LOC</th>
+                        <th>BRAND</th>
+                        <th>MAN</th>
+                        <th>EXP</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody">
                   <?php
                   $count = 1;
                     foreach ($products as $product)
@@ -115,11 +115,11 @@ tr.highlighted td {
                       }
                     }
                     ?>
-    				    </tbody>
-    				  </table>
-  			    </div>	
-		      </div>
-		  </div>
+                </tbody>
+              </table>
+            </div>  
+          </div>
+      </div>
 
       <div id="modalSellOnCredit" class="modal modal-fixed-footer" style="border:8px ridge blue; border-radius: 40px; box-shadow: inset 0 0 0 5px blue, inset 0 0 0 10px white; ">
         <h4 class="blue white-text center darken-4" style="margin: 0px">Sell On Credit</h4>
@@ -199,6 +199,64 @@ tr.highlighted td {
           </div>
       </div>
 
+      <div id="modelGenerateInvoice" class="modal modal-fixed-footer" style="border:8px ridge blue; border-radius: 40px; box-shadow: inset 0 0 0 5px blue, inset 0 0 0 10px white; ">
+        <h4 class="blue white-text center darken-4" style="margin: 0px">Invoice</h4>
+          <div class="modal-content" id="invoiceModelContent" style="margin: 0px; padding: 10px">
+            <div class="row green lighten-5" style="">
+              <div class="col s12 m6 l6">
+                <div class="input-field">
+                  <i class="material-icons blue-text darken-4 prefix">person</i>
+                  <input type="text" name="customerNameInvoice" id="customerNameInvoice" required="required">
+                  <label for="customerNameInvoice">Enter Customer Name</label>
+                </div>
+              </div>
+              <div class="col s12 m6 l6">
+                <div class="input-field">
+                  <i class="material-icons blue-text darken-4 prefix">call</i>
+                  <input type="number" name="customerMobileInvoice" id="customerMobileInvoice" required="required">
+                  <label for="customerMobileInvoice">Enter Customer Mobile Number</label>
+                </div>
+              </div>
+              <div class="col s12 m12 12">
+                <div class="input-field">
+                  <i class="material-icons blue-text darken-4 prefix">address</i>
+                  <input type="text" name="customerAddressInvoice" id="customerAddressInvoice" required="required">
+                  <label for="customerAddressInvoice">Enter Customer Address</label>
+                </div>
+              </div>
+                  <div class="col s12 m6 16 offset-m3 offset-l3">
+                    <div class="input-field">
+                      <button class="btn btn-large blue darken-4" onclick="alertGenerateInvoice()" id="btnGenerateInvoice" style="width: 100%;  border-radius:40px;">Generate Invoice</button>
+                    </div>
+                  </div>
+              </div>
+            <div class="divider"></div>
+            <div class="row">
+              <table class="display" cellspacing="0" width="100%">
+                <thead>
+                  <tr>
+                        <th>SR. NO</th>
+                        <th>NAME</th>
+                        <th>SIZE</th>
+                        <th>PRICE</th>
+                        <th>QUANTITY</th>
+                        <th>Sell Price</th>
+                        <th>BRAND</th>
+                  </tr>
+                </thead>
+                <tbody id="GenerateInvoiceTableBody" style="font-weight: bold">
+                </tbody>
+              </table>
+            </div>
+          </div>
+      </div>
+
+
+      <div class="fixed-action-btn">
+        <a class="btn-floating btn-large red">
+          <i class="large material-icons  waves-effect waves-light red">assignment</i>
+        </a>
+      </div>
     </div>
   <?php }
   else

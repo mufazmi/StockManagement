@@ -18,7 +18,6 @@
   {
     $invoice = $response->invoice;
   ?>
-  
     <div class="socialcodia" style="margin-top: -30px">
         <div class="row">
             <div class="col l12 s12 m12" style="padding: 30px 10px 30px 10px;">

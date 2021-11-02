@@ -2,39 +2,6 @@
 	require_once dirname(__FILE__).'/include/header.php';
 	require_once dirname(__FILE__).'/include/api.php';
 	require_once dirname(__FILE__).'/include/navbar.php';
-	$api = new Api;
-    $availableProductsCount = 0;
-    $productsNoticeCount = 0;
-    $productsExpiringCount = 0;
-    $productsExpiredCount = 0;
-    $todaysSalesCount = 0;
-    $brandsCount = 0;
-    $responseProductsCount = $api->getProductsCount();
-  	$responseAvailableProductsCount = $api->getAvailableProductsCount();
-  	$responseProductsNoticeCount = $api->getNoticeProductsCount();
-	$responseProductsExpiringCount = $api->getExpiringProductsCount();
-  	$responseTodaysSalesCount = $api->getTodaysSalesCount();
-  	$responseExpiredProductsCount = $api->getExpiredProductsCount();
-	$responseBrandsCount = $api->getBrandsCount();
-    // $productsCount = $responseProductsCount->products->productsCount;
-
-    if (!$responseProductsCount->error)
-        $availableProductsCount = $responseAvailableProductsCount->products->productsCount;
-
-    if (!$responseProductsNoticeCount->error)
-  	     $productsNoticeCount = $responseProductsNoticeCount->products->productsNoticeCount;
-	
-    if (!$responseProductsExpiringCount->error)
-         $productsExpiringCount = $responseProductsExpiringCount->products->productsExpiringCount;
-	
-    if (!$responseExpiredProductsCount->error)
-         $productsExpiredCount = $responseExpiredProductsCount->products->productsExpiredCount;
-	
-    if (!$responseTodaysSalesCount->error)
-         $todaysSalesCount = $responseTodaysSalesCount->sales->salesCount;
-  	
-    if (!$responseBrandsCount->error)
-         $brandsCount = $responseBrandsCount->brands->brandsCount;
 ?>
 
 
@@ -43,7 +10,7 @@
             <div class="col l2 m4 s12">
             	<div class="card hoverable">
             		<div class="card-content blue lighten-1	 white-text">
-            			<h3 style="font-weight: bold;"><?php echo $availableProductsCount; ?></h3>
+            			<h3 style="font-weight: bold;" id="productsCount">0</h3>
             			<p style="font-weight: bold; font-size:20px;">Products</p>
             		</div>
             		<div class="card-action blue darken-2 center">
@@ -54,7 +21,7 @@
             <div class="col l2 m4 s12">
             	<div class="card hoverable">
             		<div class="card-content blue lighten-1 white-text">
-            			<h3 style="font-weight: bold;"><?php echo $todaysSalesCount; ?></h3>
+            			<h3 style="font-weight: bold;" id="salesCount">0</h3>
             			<p style="font-weight: bold; font-size:20px;">Todays Sale</p>
             		</div>
             		<div class="card-action blue darken-2 center">
@@ -65,7 +32,7 @@
             <div class="col l2 m4 s12">
             	<div class="card hoverable">
             		<div class="card-content blue lighten-1 white-text">
-            			<h3 style="font-weight: bold;"><?php echo $brandsCount; ?></h3>
+            			<h3 style="font-weight: bold;" id="brandsCount">0</h3>
             			<p style="font-weight: bold; font-size:20px;">Brands</p>
             		</div>
             		<div class="card-action blue darken-2 center">
@@ -76,7 +43,7 @@
             <div class="col l2 m4 s12">
             	<div class="card hoverable">
             		<div class="card-content blue lighten-1 white-text">
-            			<h3 style="font-weight: bold;"><?php echo $productsNoticeCount; ?></h3>
+            			<h3 style="font-weight: bold;" id="noticesCount">0</h3>
             			<p style="font-weight: bold; font-size:20px;">Notice</p>
             		</div>
             		<div class="card-action blue darken-2 center">
@@ -87,7 +54,7 @@
             <div class="col l2 m4 s12">
                   <div class="card hoverable">
                         <div class="card-content blue lighten-1 white-text">
-                              <h3 style="font-weight: bold;"><?php echo $productsExpiringCount; ?></h3>
+                              <h3 style="font-weight: bold;" id="expiringsCount">0</h3>
                               <p style="font-weight: bold; font-size:20px;">Expiring</p>
                         </div>
                         <div class="card-action blue darken-2 center">
@@ -98,7 +65,7 @@
             <div class="col l2 m4 s12">
                   <div class="card hoverable">
                         <div class="card-content blue lighten-1 white-text">
-                              <h3 style="font-weight: bold;"><?php echo $productsExpiredCount; ?></h3>
+                              <h3 style="font-weight: bold;" id="expiredsCount">0</h3>
                               <p style="font-weight: bold; font-size:20px;">Expired</p>
                         </div>
                         <div class="card-action blue darken-2 center">

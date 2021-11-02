@@ -33,7 +33,7 @@
                               <th>Position</th>
                           </tr>
                         </thead>
-                        <tbody style="font-family: holo">
+                        <tbody id="tableBody">
                           <tr>
                             <?php
                             $count = 1;
